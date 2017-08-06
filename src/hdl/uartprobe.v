@@ -47,4 +47,37 @@ output                  m_axi_wvalid
 localparam UAP_GPO_W = 32,
 localparam UAP_GPI_W = 32 
 
+// Interface to recieve new data via the UART.
+wire          rx_valid;
+wire [7:0]    rx_data ;
+wire          rx_ready;
+
+// Interface to send new data via the UART.
+wire          tx_valid;
+wire [7:0]    tx_data ;
+wire          tx_ready;
+
+
+
+//
+// instance: i_uartwrapper
+//
+//  Generic interface into the UART modem implementation.
+//
+uartprobe_uartwrapper i_uartwrapper (
+    .clk        (clk     ),
+    .aresetn    (aresetn ),
+    .uart_rx    (uart_rx ),
+    .uart_tx    (uart_tx ),
+    .rx_valid   (rx_valid),
+    .rx_data    (rx_data ),
+    .rx_ready   (rx_ready),
+    .tx_valid   (tx_valid),
+    .tx_data    (tx_data ),
+    .tx_ready   (tx_ready)
+);
+
+
+endmodule
+
 endmodule
