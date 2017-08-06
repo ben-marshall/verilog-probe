@@ -1,0 +1,22 @@
+site_name: uart-probe
+
+site_author: Ben Marshall
+
+theme: readthedocs
+
+repo_name: https://github.com/ben-marshall/uart-probe
+
+markdown_extensions:
+- smarty
+- sane_lists
+- footnotes
+
+pages:
+- Features: 
+    - Overview: features.md
+- Commands:
+    - RDGPI: features-cmd-rdgpi.md
+    - RDGPO: features-cmd-rdgpo.md
+    - WRGPO: features-cmd-wrgpo.md
+- Integration: integration.md
+
