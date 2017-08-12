@@ -1,0 +1,21 @@
+
+digraph FSM {
+    
+    reset   -> idle;
+
+    idle    -> decode
+    
+    decode  -> gpi_rd;
+    decode  -> gpo_rd;
+    decode  -> gpo_wr0;
+
+    gpi_rd  -> idle;
+
+    gpo_rd  -> idle;
+
+    gpo_wr0 -> gpo_wr0;
+    gpo_wr0 -> gpo_wr1;
+    
+    gpo_wr1 -> idle;
+
+}

@@ -18,5 +18,8 @@ pages:
     - RDGPI: features-cmd-rdgpi.md
     - RDGPO: features-cmd-rdgpo.md
     - WRGPO: features-cmd-wrgpo.md
-- Integration: integration.md
+- Integration: 
+    - Overview: integration.md
+    - FSM: rtl-fsm.md
+   
 
