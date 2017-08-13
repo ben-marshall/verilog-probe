@@ -10,14 +10,13 @@ markdown_extensions:
 - smarty
 - sane_lists
 - footnotes
+- toc
 
 pages:
-- Features: 
-    - Overview: features.md
-- Commands:
-    - RDGPI: features-cmd-rdgpi.md
-    - RDGPO: features-cmd-rdgpo.md
-    - WRGPO: features-cmd-wrgpo.md
+- Specification: 
+    - Overview: spec-overview.md
+    - Details: spec-details.md
+- Commands: command-list.md
 - Integration: 
     - Overview: integration.md
     - FSM: rtl-fsm.md
