@@ -85,9 +85,9 @@ A detailed specification of each feature.
     - Data operations are used to either read or write the currently addressed
       byte.
 - Control Instructions:
-    - `AXRDCTRL` reads the control status register for the AXI4 interface and
+    - `AXRDCS` reads the control status register for the AXI4 interface and
       returns it to the probe controller via the TX line of the UART.
-    - `AXWRCTRL` writes the control status register for the AXI4 interface.
+    - `AXWRCS` writes the control status register for the AXI4 interface.
 - Address Instructions:
     - `RDAXA0`, `RDAXA1`, `RDAXA2`, `RDAXA3` - Read n'th byte of the AXI4
       address register.
@@ -104,16 +104,58 @@ A detailed specification of each feature.
    
 #### Control Status Register
 
-Bits    |   Purpose                                             | Reset Value
---------|-------------------------------------------------------|-------------
-7:6     | Read response bits.                                   | Undefined
-6:5     | Write response bits.                                  | Undefined
+**Fields:**
+
+Bits | Name |   Purpose                                    | R/W | Reset Value
+-----|------|----------------------------------------------|-----|-------------
+7:6  | rr   | AXI4 Read response for previous transaction. | R   | Undefined
+6:5  | wr   | AXI4 Write response for previous transaction.| R   | Undefined
+4    | rv   | Read response valid - has the read finished? | R   | 0
+3    | wv   | Write response valid - has the read finished?| R   | 0
+2    | ae   | Address auto increment enable.               | R/W | 1         
+1    |      | Reserved                                     | R   | Undefined 
+0    |      | Reserved                                     | R   | Undefined 
+
+Fields of the AXI4 control status register are written and read using the
+`AXRDCS` and `AXWRCS` operations.
 
 
 #### Address Register
 
+**Fields:**
+
+Bits | Name |   Purpose                                    | R/W | Reset Value
+-----|------|----------------------------------------------|-----|-------------
+31:24| a0   | Byte 3                                       | R/W | Undefined
+23:16| a1   | Byte 2                                       | R/W | Undefined
+15:8 | a2   | Byte 1                                       | R/W | Undefined
+7:0  | a3   | Byte 0                                       | R/W | Undefined
+
+Fields of the AXI4 address register are written and read using the `RDAXAn`
+and `WRAXAn` operations.
+
 
 #### Data Register
 
+**Fields:**
 
-###Clock Domains:
+Bits | Name |   Purpose                                    | R/W | Reset Value
+-----|------|----------------------------------------------|-----|-------------
+7:0  | d0   | Byte for read / write data                   | R/W | Undefined
+
+
+Fields of the AXI4 data register are written and read using the `RDAXD`
+and `WRAXD` operations.
+
+When a read transaction completes successfully, the returned data is placed
+into this register.
+
+When this register is written to, the written value is not stored in it, but
+forwarded straight onto the AXI4 bus.
+
+### Clock Domains:
+
+- The AXI4 bus is synchronised to the same clock domain as the rest of the
+  probe module.
+- External synchronisation between clock domains can be added as needed to
+  interface with other faster or slower devices.

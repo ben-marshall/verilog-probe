@@ -1,52 +1,16 @@
 
 # Command List
 
-- `RDGPIx`
-- `RDGPOx`
-- `WRGPOx`
+## Encoding Table
 
-## RDGPI [A]
-
-### Description
-
-Read the `x'th` byte of the general purpose inputs and write them over the
-UART interface.
-
-### Sequence
-
-Byte | RX Value   | Notes
------|------------|-----------------------------------------------------------
-0    | `000000AA` | `AA` is 2-bit encoding of byte index to read.
-1    | `XXXXXXXX` | Data from inputs returned.
-
----
-
-## RDGPO [A]
-
-### Description
-
-Read the `x'th` byte of the general purpose outputs and write them over the
-UART interface.
-
-### Sequence
-
-Byte | RX Value   | Notes
------|------------|-----------------------------------------------------------
-0    | `000010AA` | `AA` is 2-bit encoding of byte index to read.
-1    | `XXXXXXXX` | Data currently on output byte is returned.
-
----
-
-## WRGPO [A]
-
-### Description
-
-Write the `x'th` byte of the general purpose outputs with a given value.
-
-### Sequence
-
-Byte | RX Value   | Notes
------|------------|-----------------------------------------------------------
-0    | `000011AA` | `AA` is 2-bit encoding of byte index to write.
-1    | `XXXXXXXX` | Data to be written to output byte is recieved.
-
+Bits 7:2 \ Bits 1:0 |   `00`   |   `01`   |    `10`  |   `11`   
+--------------------|----------|----------|----------|------------
+     `000000`       |  RDGPI0  | RDGPI1   | RDGPI2   | RDGPI3   
+     `000001`       |  RDGPO0  | RDGPO1   | RDGPO2   | RDGPO3   
+     `000010`       |  WRGPO0  | WRGPO1   | WRGPO2   | WRGPO3   
+     `000011`       |  RDAXA0  | RDAXA1   | RDAXA2   | RDAXA3   
+     `000100`       |  WRAXA0  | WRAXA1   | WRAXA2   | WRAXA3   
+     `000101`       |  RDAXD   | WRAXD    |    x     |    x     
+     `000110`       |  AXRDCS  | AXWRCS   |    x     |    x     
+     `000111`       |    x     |    x     |    x     |    x     
+     `??1???`       |    x     |    x     |    x     |    x     
