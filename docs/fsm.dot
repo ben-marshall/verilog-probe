@@ -1,21 +1,36 @@
 
 digraph FSM {
     
-    reset   -> idle;
+    reset       -> idle;
 
-    idle    -> decode
+    idle        -> gpi_rd0;
+    idle        -> gpi_rd1;
+    idle        -> gpi_rd2;
+    idle        -> gpi_rd3;
+
+    idle        -> gpo_rd0;
+    idle        -> gpo_rd1;
+    idle        -> gpo_rd2;
+    idle        -> gpo_rd3;
     
-    decode  -> gpi_rd;
-    decode  -> gpo_rd;
-    decode  -> gpo_wr0;
+    idle        -> gpo_wr0;
+    idle        -> gpo_wr1;
+    idle        -> gpo_wr2;
+    idle        -> gpo_wr3;
 
-    gpi_rd  -> idle;
-
-    gpo_rd  -> idle;
-
-    gpo_wr0 -> gpo_wr0;
-    gpo_wr0 -> gpo_wr1;
-    
-    gpo_wr1 -> idle;
+    gpi_rd0     -> idle;
+    gpi_rd1     -> idle;
+    gpi_rd2     -> idle;
+    gpi_rd3     -> idle;
+                   
+    gpo_rd0     -> idle;
+    gpo_rd1     -> idle;
+    gpo_rd2     -> idle;
+    gpo_rd3     -> idle;
+                   
+    gpo_wr0     -> idle;
+    gpo_wr1     -> idle;
+    gpo_wr2     -> idle;
+    gpo_wr3     -> idle;
 
 }
