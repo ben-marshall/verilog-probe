@@ -126,10 +126,10 @@ Fields of the AXI4 control status register are written and read using the
 
 Bits | Name |   Purpose                                    | R/W | Reset Value
 -----|------|----------------------------------------------|-----|-------------
-31:24| a0   | Byte 3                                       | R/W | Undefined
-23:16| a1   | Byte 2                                       | R/W | Undefined
-15:8 | a2   | Byte 1                                       | R/W | Undefined
-7:0  | a3   | Byte 0                                       | R/W | Undefined
+31:24| a3   | Byte 3                                       | R/W | Undefined
+23:16| a2   | Byte 2                                       | R/W | Undefined
+15:8 | a1   | Byte 1                                       | R/W | Undefined
+7:0  | a0   | Byte 0                                       | R/W | Undefined
 
 Fields of the AXI4 address register are written and read using the `RDAXAn`
 and `WRAXAn` operations.

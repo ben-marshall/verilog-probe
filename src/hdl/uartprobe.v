@@ -6,7 +6,8 @@
 //  control an AXI bus master and a set of general purpose inputs and outputs.
 //
 module uartprobe #(
-    parameter [31:0] GPO_ON_RESET = 32'b0;
+    parameter [31:0] GPO_ON_RESET      = 32'b0;
+    parameter [31:0] AXI_ADDR_ON_RESET = 32'b0;
 )(
     
 input             clk,
@@ -32,19 +33,30 @@ output            m_axi_bready,
 input      [ 1:0] m_axi_bresp,
 input             m_axi_bvalid,
             
-input      [31:0] m_axi_rdata,
+input      [ 7:0] m_axi_rdata,
 input             m_axi_rlast,
 output            m_axi_rready,
 input      [ 1:0] m_axi_rresp,
 input             m_axi_rvalid,
             
-output     [31:0] m_axi_wdata,
+output     [ 7:0] m_axi_wdata,
 output            m_axi_wlast,
 input             m_axi_wready,
 output     [ 3:0] m_axi_wstrb,
 output            m_axi_wvalid
 
 );
+
+//
+// AXI Register declarations
+//
+
+reg  [31:0]   axi_addr;
+reg  [ 7:0]   axi_data;
+reg  [ 7:0]   axi_ctrl;
+
+assign        m_axi_araddr = axi_addr;
+assign        m_axi_awaddr = axi_addr;
 
 // Interface to recieve new data via the UART.
 wire          rx_valid;
@@ -79,6 +91,14 @@ localparam [7:0] CMD_GPO_WR0    = 'd10;
 localparam [7:0] CMD_GPO_WR1    = 'd11;
 localparam [7:0] CMD_GPO_WR2    = 'd12;
 localparam [7:0] CMD_GPO_WR3    = 'd13;
+localparam [7:0] CMD_AXI_RD0    = 'd14;
+localparam [7:0] CMD_AXI_RD1    = 'd15;
+localparam [7:0] CMD_AXI_RD2    = 'd16;
+localparam [7:0] CMD_AXI_RD3    = 'd17;
+localparam [7:0] CMD_AXI_WR0    = 'd18;
+localparam [7:0] CMD_AXI_WR1    = 'd19;
+localparam [7:0] CMD_AXI_WR2    = 'd20;
+localparam [7:0] CMD_AXI_WR3    = 'd21;
 
 //
 // FSM State encodings
@@ -96,6 +116,14 @@ localparam [5:0] FSM_GPO_WR0    = CMD_GPO_WR0;
 localparam [5:0] FSM_GPO_WR1    = CMD_GPO_WR1;
 localparam [5:0] FSM_GPO_WR2    = CMD_GPO_WR2;
 localparam [5:0] FSM_GPO_WR3    = CMD_GPO_WR3;
+localparam [5:0] FSM_AXI_RD0    = CMD_AXI_RD0;
+localparam [5:0] FSM_AXI_RD1    = CMD_AXI_RD1;
+localparam [5:0] FSM_AXI_RD2    = CMD_AXI_RD2;
+localparam [5:0] FSM_AXI_RD3    = CMD_AXI_RD3;
+localparam [5:0] FSM_AXI_WR0    = CMD_AXI_WR0;
+localparam [5:0] FSM_AXI_WR1    = CMD_AXI_WR1;
+localparam [5:0] FSM_AXI_WR2    = CMD_AXI_WR2;
+localparam [5:0] FSM_AXI_WR3    = CMD_AXI_WR3;
 
 // 
 // ---------------------- Control FSM -----------------------------------------
@@ -124,16 +152,26 @@ always @(*) begin : p_n_fsm
         FSM_GPI_RD1 : n_fsm = tx_ready ? FSM_GPI_RD1 : FSM_IDLE;
         FSM_GPI_RD2 : n_fsm = tx_ready ? FSM_GPI_RD2 : FSM_IDLE;
         FSM_GPI_RD3 : n_fsm = tx_ready ? FSM_GPI_RD3 : FSM_IDLE;
-                                                     
+
         FSM_GPO_RD0 : n_fsm = tx_ready ? FSM_GPO_RD0 : FSM_IDLE;
         FSM_GPO_RD1 : n_fsm = tx_ready ? FSM_GPO_RD1 : FSM_IDLE;
         FSM_GPO_RD2 : n_fsm = tx_ready ? FSM_GPO_RD2 : FSM_IDLE;
         FSM_GPO_RD3 : n_fsm = tx_ready ? FSM_GPO_RD3 : FSM_IDLE;
-                                         
+
         FSM_GPO_WR0 : n_fsm = rx_valid ? FSM_GPO_WR0 : FSM_IDLE;
         FSM_GPO_WR1 : n_fsm = rx_valid ? FSM_GPO_WR1 : FSM_IDLE;
         FSM_GPO_WR2 : n_fsm = rx_valid ? FSM_GPO_WR2 : FSM_IDLE;
         FSM_GPO_WR3 : n_fsm = rx_valid ? FSM_GPO_WR3 : FSM_IDLE;
+
+        FSM_AXI_RD0 : n_fsm = tx_ready ? FSM_AXI_RD0 : FSM_IDLE;
+        FSM_AXI_RD1 : n_fsm = tx_ready ? FSM_AXI_RD1 : FSM_IDLE;
+        FSM_AXI_RD2 : n_fsm = tx_ready ? FSM_AXI_RD2 : FSM_IDLE;
+        FSM_AXI_RD3 : n_fsm = tx_ready ? FSM_AXI_RD3 : FSM_IDLE;
+
+        FSM_AXI_WR0 : n_fsm = rx_valid ? FSM_AXI_WR0 : FSM_IDLE;
+        FSM_AXI_WR1 : n_fsm = rx_valid ? FSM_AXI_WR1 : FSM_IDLE;
+        FSM_AXI_WR2 : n_fsm = rx_valid ? FSM_AXI_WR2 : FSM_IDLE;
+        FSM_AXI_WR3 : n_fsm = rx_valid ? FSM_AXI_WR3 : FSM_IDLE;
 
         default     : n_fsm = FSM_IDLE;
 
@@ -155,18 +193,26 @@ assign rx_ready = rx_valid;
 
 // Select a register to be read.
 assign tx_data = 
-    ((fsm == FSM_GPI_RD0) & gpi[31:24]) || 
-    ((fsm == FSM_GPI_RD1) & gpi[23:16]) || 
-    ((fsm == FSM_GPI_RD2) & gpi[15: 8]) || 
-    ((fsm == FSM_GPI_RD3) & gpi[ 7: 0]) || 
-    ((fsm == FSM_GPO_RD0) & gpo[31:24]) || 
-    ((fsm == FSM_GPO_RD1) & gpo[23:16]) || 
-    ((fsm == FSM_GPO_RD2) & gpo[15: 8]) || 
-    ((fsm == FSM_GPO_RD3) & gpo[ 7: 0])  ;
+    ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) || 
+    ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) || 
+    ((fsm == FSM_AXI_RD2) & axi_addr[15: 8]) || 
+    ((fsm == FSM_AXI_RD3) & axi_addr[ 7: 0]) || 
+    ((fsm == FSM_GPI_RD0) &      gpi[31:24]) || 
+    ((fsm == FSM_GPI_RD1) &      gpi[23:16]) || 
+    ((fsm == FSM_GPI_RD2) &      gpi[15: 8]) || 
+    ((fsm == FSM_GPI_RD3) &      gpi[ 7: 0]) || 
+    ((fsm == FSM_GPO_RD0) &      gpo[31:24]) || 
+    ((fsm == FSM_GPO_RD1) &      gpo[23:16]) || 
+    ((fsm == FSM_GPO_RD2) &      gpo[15: 8]) || 
+    ((fsm == FSM_GPO_RD3) &      gpo[ 7: 0])  ;
 
 
 // Signal that a word should be sent.
 assign tx_valid = 
+    (fsm == FSM_AXI_RD0) || 
+    (fsm == FSM_AXI_RD1) || 
+    (fsm == FSM_AXI_RD2) || 
+    (fsm == FSM_AXI_RD3) || 
     (fsm == FSM_GPI_RD0) || 
     (fsm == FSM_GPI_RD1) || 
     (fsm == FSM_GPI_RD2) || 
@@ -179,6 +225,23 @@ assign tx_valid =
 // 
 // ---------------------- Registers -------------------------------------------
 //
+
+//
+// These processes are responsible for updating the AXI address register.
+//
+always @(posedge clk, negedge aresetn) begin : p_axi_addr
+    if(!aresetn) begin
+        axi_addr <= AXI_ADDR_ON_RESET;
+    end else if (fsm == FSM_AXI_WR0 && rx_valid) begin
+        axi_addr <= {axi_addr[31:8], rx_data};
+    end else if (fsm == FSM_AXI_WR1 && rx_valid) begin
+        axi_addr <= {axi_addr[31:16], rx_data, axi_addr[7:0]};
+    end else if (fsm == FSM_AXI_WR2 && rx_valid) begin
+        axi_addr <= {axi_addr[31:24], rx_data, axi_addr[15:0]};
+    end else if (fsm == FSM_AXI_WR3 && rx_valid) begin
+        axi_addr <= {rx_data, axi_addr[23:0]};
+    end
+end
 
 //
 // These processes are responsible for updating the GPO byte registers.
