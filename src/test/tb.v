@@ -13,7 +13,7 @@ module tb_uartprobe ();
 //
 
 reg               clk;
-reg               aresetn;
+reg               m_aresetn;
 
 reg               uart_rx;
 wire              uart_tx;
@@ -64,10 +64,10 @@ initial begin
     $dumpfile("work/waves.vcd");
     $dumpvars(0, tb_uartprobe);
 
-    aresetn = 1'b0;
+    m_aresetn = 1'b0;
     clk     = 0;
     clock_counter = 0;
-#20 aresetn = 1'b1;
+#20 m_aresetn = 1'b1;
 
 end
 
@@ -131,7 +131,7 @@ end
 //
 uartprobe i_dut (   
     .clk            (clk           ), 
-    .aresetn        (aresetn       ), 
+    .m_aresetn        (m_aresetn       ), 
     .uart_rx        (uart_rx       ), 
     .uart_tx        (uart_tx       ), 
     .gpo            (gpo           ), 

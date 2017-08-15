@@ -11,7 +11,7 @@ module uartprobe #(
 )(
     
 input             clk,
-input             aresetn,
+input             m_aresetn,
 
 input             uart_rx,
 output            uart_tx,
@@ -33,14 +33,14 @@ output            m_axi_bready,
 input      [ 1:0] m_axi_bresp,
 input             m_axi_bvalid,
             
-input      [ 7:0] m_axi_rdata,
+input      [31:0] m_axi_rdata,
 output            m_axi_rready,
 input      [ 1:0] m_axi_rresp,
 input             m_axi_rvalid,
             
-output reg [ 7:0] m_axi_wdata,
+output reg [31:0] m_axi_wdata,
 input             m_axi_wready,
-output     [ 0:0] m_axi_wstrb,
+output     [ 3:0] m_axi_wstrb,
 output            m_axi_wvalid
 
 );
@@ -79,7 +79,7 @@ assign        m_axi_bready = m_axi_bvalid;
 
 assign        m_axi_rready = m_axi_rvalid;
 
-assign        m_axi_wstrb  = 1'b1;
+assign        m_axi_wstrb  = 4'b1;
 assign        m_axi_wvalid = axi_wr_go;
 
 assign        m_axi_araddr = axi_addr;
@@ -236,7 +236,7 @@ assign rx_ready = rx_valid;
 
 // Select a register to be read.
 assign tx_data = 
-    ((fsm == FSM_AXI_RD ) & axi_data       ) || 
+    ((fsm == FSM_AXI_RD ) & axi_data[7:0]  ) || 
     ((fsm == FSM_AXI_RDC) & axi_ctrl       ) || 
     ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) || 
     ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) || 
@@ -276,8 +276,8 @@ assign tx_valid =
 //
 // Responsible for updating the axi_rd_go signal.
 //
-always @(posedge clk, negedge aresetn) begin : p_axi_rd_go
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_axi_rd_go
+    if(!m_aresetn) begin
         axi_rd_go <= 1'b0;
     end else if (m_axi_arready) begin
         axi_rd_go <= 1'b0;
@@ -289,8 +289,8 @@ end
 //
 // Responsible for updating the axi_wa_go signal.
 //
-always @(posedge clk, negedge aresetn) begin : p_axi_wa_go
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_axi_wa_go
+    if(!m_aresetn) begin
         axi_wa_go <= 1'b0;
     end else begin
         if (m_axi_awready) begin
@@ -304,8 +304,8 @@ end
 //
 // Responsible for updating the axi_wr_go signal.
 //
-always @(posedge clk, negedge aresetn) begin : p_axi_wr_go
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_axi_wr_go
+    if(!m_aresetn) begin
         axi_wr_go <= 1'b0;
     end else begin
         if (m_axi_wready) begin
@@ -319,8 +319,8 @@ end
 //
 // Responsible for updating the AXI control register
 //
-always @(posedge clk, negedge aresetn) begin : p_axi_ctrl
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_axi_ctrl
+    if(!m_aresetn) begin
 
         axi_ctrl[`AXI_CTRL_RV] <= 1'b1;
         axi_ctrl[`AXI_CTRL_WV] <= 1'b1;
@@ -352,21 +352,22 @@ end
 // Responsible for updating the AXI write data register.
 //
 always @(posedge clk) begin : p_axi_wdata
-    if(fsm == FSM_AXI_WR && rx_valid) m_axi_wdata <= rx_data;
+    m_axi_wdata [31:8] <= 24'b0;
+    if(fsm == FSM_AXI_WR && rx_valid) m_axi_wdata[7:0] <= rx_data;
 end
 
 //
 // Responsible for updating the AXI read data register.
 //
 always @(posedge clk) begin : p_axi_rdata
-    if(m_axi_rvalid) axi_data <= m_axi_rdata;
+    if(m_axi_rvalid) axi_data <= m_axi_rdata[7:0];
 end
 
 //
 // This process is responsible for updating the AXI address register.
 //
-always @(posedge clk, negedge aresetn) begin : p_axi_addr
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_axi_addr
+    if(!m_aresetn) begin
         axi_addr <= AXI_ADDR_ON_RESET;
     end else if (fsm == FSM_AXI_WR0 && rx_valid) begin
         axi_addr <= {axi_addr[31:8], rx_data};
@@ -382,8 +383,8 @@ end
 //
 // These processes are responsible for updating the GPO byte registers.
 //
-always @(posedge clk, negedge aresetn) begin : p_gpo
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_gpo
+    if(!m_aresetn) begin
         gpo <= GPO_ON_RESET;
     end else if (fsm == FSM_GPO_WR0 && rx_valid) begin
         gpo <= {gpo[31:8], rx_data};
@@ -400,8 +401,8 @@ end
 //
 // Responsible for progressing the state of the FSM
 //
-always @(posedge clk, negedge aresetn) begin : p_fsm
-    if(!aresetn) begin
+always @(posedge clk, negedge m_aresetn) begin : p_fsm
+    if(!m_aresetn) begin
         fsm    <= FSM_RESET;
     end else begin
         fsm    <= n_fsm;
@@ -416,7 +417,7 @@ end
 //
 uartprobe_uartwrapper i_uartwrapper (
     .clk        (clk     ),
-    .aresetn    (aresetn ),
+    .m_aresetn    (m_aresetn ),
     .uart_rx    (uart_rx ),
     .uart_tx    (uart_tx ),
     .rx_valid   (rx_valid),
