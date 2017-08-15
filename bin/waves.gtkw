@@ -1,0 +1,128 @@
+[*]
+[*] GTKWave Analyzer v3.3.79 (w)1999-2017 BSI
+[*] Tue Aug 15 17:38:25 2017
+[*]
+[dumpfile] "/home/ben/projects/verilog/uartprobe/work/waves.vcd"
+[dumpfile_mtime] "Tue Aug 15 17:36:06 2017"
+[dumpfile_size] 424782
+[savefile] "/home/ben/projects/verilog/uartprobe/bin/waves.gtkw"
+[timestart] 0
+[size] 1920 1056
+[pos] -55 -1
+*-16.000000 9700000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] tb_uartprobe.
+[treeopen] tb_uartprobe.i_dut.
+[sst_width] 225
+[signals_width] 174
+[sst_expanded] 1
+[sst_vpaned_height] 320
+@800200
+-Testbench
+@28
+tb_uartprobe.aresetn
+tb_uartprobe.clk
+@420
+tb_uartprobe.clock_counter
+@22
+tb_uartprobe.gpi[31:0]
+tb_uartprobe.gpo[31:0]
+@800200
+-AXI
+@22
+tb_uartprobe.m_axi_araddr[31:0]
+@28
+tb_uartprobe.m_axi_arready
+tb_uartprobe.m_axi_arsize[2:0]
+tb_uartprobe.m_axi_arvalid
+@22
+tb_uartprobe.m_axi_awaddr[31:0]
+@28
+tb_uartprobe.m_axi_awready
+tb_uartprobe.m_axi_awsize[2:0]
+tb_uartprobe.m_axi_awvalid
+tb_uartprobe.m_axi_bready
+tb_uartprobe.m_axi_bresp[1:0]
+tb_uartprobe.m_axi_bvalid
+@22
+tb_uartprobe.m_axi_rdata[7:0]
+@28
+tb_uartprobe.m_axi_rready
+tb_uartprobe.m_axi_rresp[1:0]
+tb_uartprobe.m_axi_rvalid
+@22
+tb_uartprobe.m_axi_wdata[7:0]
+@28
+tb_uartprobe.m_axi_wready
+tb_uartprobe.m_axi_wstrb
+tb_uartprobe.m_axi_wvalid
+@1000200
+-AXI
+@800200
+-UART
+@28
+tb_uartprobe.uart_rx
+tb_uartprobe.uart_tx
+@1000200
+-UART
+-Testbench
+@800200
+-DUT
+@28
+tb_uartprobe.i_dut.aresetn
+@22
+tb_uartprobe.i_dut.axi_addr[31:0]
+tb_uartprobe.i_dut.axi_ctrl[7:0]
+tb_uartprobe.i_dut.axi_data[7:0]
+@28
+tb_uartprobe.i_dut.axi_rd_go
+tb_uartprobe.i_dut.axi_wa_go
+tb_uartprobe.i_dut.axi_wr_go
+tb_uartprobe.i_dut.clk
+@23
+tb_uartprobe.i_dut.fsm[5:0]
+@22
+tb_uartprobe.i_dut.gpi[31:0]
+tb_uartprobe.i_dut.gpo[31:0]
+tb_uartprobe.i_dut.m_axi_araddr[31:0]
+@28
+tb_uartprobe.i_dut.m_axi_arready
+tb_uartprobe.i_dut.m_axi_arsize[2:0]
+tb_uartprobe.i_dut.m_axi_arvalid
+@22
+tb_uartprobe.i_dut.m_axi_awaddr[31:0]
+@28
+tb_uartprobe.i_dut.m_axi_awready
+tb_uartprobe.i_dut.m_axi_awsize[2:0]
+tb_uartprobe.i_dut.m_axi_awvalid
+tb_uartprobe.i_dut.m_axi_bready
+tb_uartprobe.i_dut.m_axi_bresp[1:0]
+tb_uartprobe.i_dut.m_axi_bvalid
+@22
+tb_uartprobe.i_dut.m_axi_rdata[7:0]
+@28
+tb_uartprobe.i_dut.m_axi_rready
+tb_uartprobe.i_dut.m_axi_rresp[1:0]
+tb_uartprobe.i_dut.m_axi_rvalid
+@22
+tb_uartprobe.i_dut.m_axi_wdata[7:0]
+@28
+tb_uartprobe.i_dut.m_axi_wready
+tb_uartprobe.i_dut.m_axi_wstrb
+tb_uartprobe.i_dut.m_axi_wvalid
+@22
+tb_uartprobe.i_dut.n_fsm[5:0]
+tb_uartprobe.i_dut.rx_data[7:0]
+@28
+tb_uartprobe.i_dut.rx_ready
+tb_uartprobe.i_dut.rx_valid
+@22
+tb_uartprobe.i_dut.tx_data[7:0]
+@28
+tb_uartprobe.i_dut.tx_ready
+tb_uartprobe.i_dut.tx_valid
+tb_uartprobe.i_dut.uart_rx
+tb_uartprobe.i_dut.uart_tx
+@1000200
+-DUT
+[pattern_trace] 1
+[pattern_trace] 0

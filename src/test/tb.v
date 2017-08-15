@@ -62,7 +62,7 @@ always #5 clk = !clk;
 initial begin
 
     $dumpfile("work/waves.vcd");
-    $dumpvars(0, tb_out);
+    $dumpvars(0, tb_uartprobe);
 
     aresetn = 1'b0;
     clk     = 0;

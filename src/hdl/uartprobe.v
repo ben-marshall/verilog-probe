@@ -6,8 +6,8 @@
 //  control an AXI bus master and a set of general purpose inputs and outputs.
 //
 module uartprobe #(
-    parameter [31:0] GPO_ON_RESET      = 32'b0;
-    parameter [31:0] AXI_ADDR_ON_RESET = 32'b0;
+    parameter [31:0] GPO_ON_RESET      = 32'b0,
+    parameter [31:0] AXI_ADDR_ON_RESET = 32'b0
 )(
     
 input             clk,
@@ -292,7 +292,7 @@ end
 always @(posedge clk, negedge aresetn) begin : p_axi_wa_go
     if(!aresetn) begin
         axi_wa_go <= 1'b0;
-    end else 
+    end else begin
         if (m_axi_awready) begin
             axi_wa_go <= 1'b0;
         end else if(fsm == FSM_AXI_WR && rx_valid) begin
@@ -307,7 +307,7 @@ end
 always @(posedge clk, negedge aresetn) begin : p_axi_wr_go
     if(!aresetn) begin
         axi_wr_go <= 1'b0;
-    end else 
+    end else begin
         if (m_axi_wready) begin
             axi_wr_go <= 1'b0;
         end else if(fsm == FSM_AXI_WR && rx_valid) begin
@@ -401,7 +401,7 @@ end
 // Responsible for progressing the state of the FSM
 //
 always @(posedge clk, negedge aresetn) begin : p_fsm
-    if(!resetn) begin
+    if(!aresetn) begin
         fsm    <= FSM_RESET;
     end else begin
         fsm    <= n_fsm;
