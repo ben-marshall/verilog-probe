@@ -1,6 +1,5 @@
 
 ICARUS_SRC=./src/hdl/uartprobe.v \
-           ./src/hdl/uartprobe_uartwrapper.v \
            ./src/test/tb.v
 ICARUS_SIM=./work/uartprobe.ivsim
 

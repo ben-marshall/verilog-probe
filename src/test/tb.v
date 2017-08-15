@@ -15,8 +15,13 @@ module tb_uartprobe ();
 reg               clk;
 reg               m_aresetn;
 
-reg               uart_rx;
-wire              uart_tx;
+reg               rx_valid;
+reg        [ 7:0] rx_data;
+wire              rx_ready;
+             
+wire              tx_valid;
+wire       [ 7:0] tx_data;
+reg               tx_ready;
 
 wire       [31:0] gpo;
 reg        [31:0] gpi;
@@ -35,14 +40,14 @@ wire              m_axi_bready;
 reg        [ 1:0] m_axi_bresp;
 reg               m_axi_bvalid;
             
-reg        [ 7:0] m_axi_rdata;
+reg        [31:0] m_axi_rdata;
 wire              m_axi_rready;
 reg        [ 1:0] m_axi_rresp;
 reg               m_axi_rvalid;
             
-wire       [ 7:0] m_axi_wdata;
+wire       [31:0] m_axi_wdata;
 reg               m_axi_wready;
-wire       [ 0:0] m_axi_wstrb;
+wire       [ 3:0] m_axi_wstrb;
 wire              m_axi_wvalid;
 
 //
@@ -131,9 +136,13 @@ end
 //
 uartprobe i_dut (   
     .clk            (clk           ), 
-    .m_aresetn        (m_aresetn       ), 
-    .uart_rx        (uart_rx       ), 
-    .uart_tx        (uart_tx       ), 
+    .m_aresetn      (m_aresetn     ), 
+    .rx_valid       (rx_valid      ), 
+    .rx_data        (rx_data       ), 
+    .rx_ready       (rx_ready      ), 
+    .tx_valid       (tx_valid      ), 
+    .tx_data        (tx_data       ), 
+    .tx_ready       (tx_ready      ), 
     .gpo            (gpo           ), 
     .gpi            (gpi           ), 
     .m_axi_araddr   (m_axi_araddr  ), 

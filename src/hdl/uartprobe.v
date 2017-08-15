@@ -13,8 +13,13 @@ module uartprobe #(
 input             clk,
 input             m_aresetn,
 
-input             uart_rx,
-output            uart_tx,
+input             rx_valid,
+input      [ 7:0] rx_data,
+output            rx_ready,
+             
+output            tx_valid,
+output     [ 7:0] tx_data,
+input             tx_ready,
 
 output reg [31:0] gpo,
 input      [31:0] gpi,
@@ -84,17 +89,6 @@ assign        m_axi_wvalid = axi_wr_go;
 
 assign        m_axi_araddr = axi_addr;
 assign        m_axi_awaddr = axi_addr;
-
-// Interface to recieve new data via the UART.
-wire          rx_valid;
-wire [7:0]    rx_data ;
-wire          rx_ready;
-
-
-// Interface to send new data via the UART.
-wire          tx_valid;
-wire [7:0]    tx_data ;
-wire          tx_ready;
 
 //
 // FSM State encodings and state registers
@@ -408,25 +402,6 @@ always @(posedge clk, negedge m_aresetn) begin : p_fsm
         fsm    <= n_fsm;
     end
 end
-
-
-//
-// instance: i_uartwrapper
-//
-//  Generic interface into the UART modem implementation.
-//
-uartprobe_uartwrapper i_uartwrapper (
-    .clk        (clk     ),
-    .m_aresetn    (m_aresetn ),
-    .uart_rx    (uart_rx ),
-    .uart_tx    (uart_tx ),
-    .rx_valid   (rx_valid),
-    .rx_data    (rx_data ),
-    .rx_ready   (rx_ready),
-    .tx_valid   (tx_valid),
-    .tx_data    (tx_data ),
-    .tx_ready   (tx_ready)
-);
 
 
 endmodule
