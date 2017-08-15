@@ -109,15 +109,29 @@ A detailed specification of each feature.
 Bits | Name |   Purpose                                    | R/W | Reset Value
 -----|------|----------------------------------------------|-----|-------------
 7:6  | rr   | AXI4 Read response for previous transaction. | R   | Undefined
-6:5  | wr   | AXI4 Write response for previous transaction.| R   | Undefined
-4    | rv   | Read response valid - has the read finished? | R   | 0
-3    | wv   | Write response valid - has the read finished?| R   | 0
-2    | ae   | Address auto increment enable.               | R/W | 1         
-1    |      | Reserved                                     | R   | Undefined 
-0    |      | Reserved                                     | R   | Undefined 
+5:4  | wr   | AXI4 Write response for previous transaction.| R   | Undefined
+3    | rv   | Read response valid - has the read finished? | R   | 1
+2    | wv   | Write response valid - has the read finished?| R   | 1
+1    | ae   | Address auto increment enable.               | R/W | 1         
+0    | rd   | "Do Read"                                    | W   | 0
 
 Fields of the AXI4 control status register are written and read using the
 `AXRDCS` and `AXWRCS` operations.
+
+Whenever a read or write transaction on the AXI bus completes, the relevant
+`rv` or `wv` bit is set. These bits are cleared on each read of the register
+via the `AXRDCS` command. When the register is read at the same time as a
+transaction finishes, the bit will remain set.
+
+The `rr` and `wr` fields contain the `axi_rresp` and `axi_bresp` signals of
+the last read or write transaction which completed. They are not updated
+when the register is read using an `AXRDCS` commands.
+
+When a `1` is written to the `rd` field, a read transaction is commenced at
+the current address pointed to by the AXI Address Register. Writes of a 
+`0` value are ignored. If there is already an outstanding transaction on
+the bus, then the write is also ignored. This is indicated by the `rv` and
+`wv` fields.
 
 
 #### Address Register

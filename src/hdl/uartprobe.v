@@ -34,15 +34,13 @@ input      [ 1:0] m_axi_bresp,
 input             m_axi_bvalid,
             
 input      [ 7:0] m_axi_rdata,
-input             m_axi_rlast,
 output            m_axi_rready,
 input      [ 1:0] m_axi_rresp,
 input             m_axi_rvalid,
             
-output     [ 7:0] m_axi_wdata,
-output            m_axi_wlast,
+output reg [ 7:0] m_axi_wdata,
 input             m_axi_wready,
-output     [ 3:0] m_axi_wstrb,
+output     [ 0:0] m_axi_wstrb,
 output            m_axi_wvalid
 
 );
@@ -51,9 +49,38 @@ output            m_axi_wvalid
 // AXI Register declarations
 //
 
+`define AXI_CTRL_RR 7:6
+`define AXI_CTRL_WR 5:4
+`define AXI_CTRL_RV 3:3
+`define AXI_CTRL_WV 2:2
+`define AXI_CTRL_AE 1:1
+`define AXI_CTRL_RD 0:0
+
+// "go" signals to trigger a read or write transaction on the AXI bus.
+reg           axi_rd_go;
+reg           axi_wr_go;
+reg           axi_wa_go;
+
 reg  [31:0]   axi_addr;
 reg  [ 7:0]   axi_data;
 reg  [ 7:0]   axi_ctrl;
+
+//
+// AXI Signal Handling
+//
+
+assign        m_axi_arsize = 3'b0;
+assign        m_axi_arvalid= axi_rd_go;
+
+assign        m_axi_awsize = 3'b0;
+assign        m_axi_awvalid= axi_wa_go;
+
+assign        m_axi_bready = m_axi_bvalid;
+
+assign        m_axi_rready = m_axi_rvalid;
+
+assign        m_axi_wstrb  = 1'b1;
+assign        m_axi_wvalid = axi_wr_go;
 
 assign        m_axi_araddr = axi_addr;
 assign        m_axi_awaddr = axi_addr;
@@ -99,6 +126,10 @@ localparam [7:0] CMD_AXI_WR0    = 'd18;
 localparam [7:0] CMD_AXI_WR1    = 'd19;
 localparam [7:0] CMD_AXI_WR2    = 'd20;
 localparam [7:0] CMD_AXI_WR3    = 'd21;
+localparam [7:0] CMD_AXI_RD     = 'd22;
+localparam [7:0] CMD_AXI_WR     = 'd23;
+localparam [7:0] CMD_AXI_RDC    = 'd24;
+localparam [7:0] CMD_AXI_WRC    = 'd25;
 
 //
 // FSM State encodings
@@ -124,6 +155,12 @@ localparam [5:0] FSM_AXI_WR0    = CMD_AXI_WR0;
 localparam [5:0] FSM_AXI_WR1    = CMD_AXI_WR1;
 localparam [5:0] FSM_AXI_WR2    = CMD_AXI_WR2;
 localparam [5:0] FSM_AXI_WR3    = CMD_AXI_WR3;
+localparam [5:0] FSM_AXI_RD     = CMD_AXI_RD ;
+localparam [5:0] FSM_AXI_WR     = CMD_AXI_WR ;
+localparam [5:0] FSM_AXI_RDC    = CMD_AXI_RDC;
+localparam [5:0] FSM_AXI_WRC    = CMD_AXI_WRC;
+
+
 
 // 
 // ---------------------- Control FSM -----------------------------------------
@@ -172,6 +209,12 @@ always @(*) begin : p_n_fsm
         FSM_AXI_WR1 : n_fsm = rx_valid ? FSM_AXI_WR1 : FSM_IDLE;
         FSM_AXI_WR2 : n_fsm = rx_valid ? FSM_AXI_WR2 : FSM_IDLE;
         FSM_AXI_WR3 : n_fsm = rx_valid ? FSM_AXI_WR3 : FSM_IDLE;
+        
+        FSM_AXI_RD  : n_fsm = tx_valid ? FSM_AXI_RD  : FSM_IDLE;
+        FSM_AXI_WR  : n_fsm = rx_valid ? FSM_AXI_WR  : FSM_IDLE;
+        
+        FSM_AXI_RDC : n_fsm = tx_valid ? FSM_AXI_RDC : FSM_IDLE;
+        FSM_AXI_WRC : n_fsm = rx_valid ? FSM_AXI_WRC : FSM_IDLE;
 
         default     : n_fsm = FSM_IDLE;
 
@@ -193,6 +236,8 @@ assign rx_ready = rx_valid;
 
 // Select a register to be read.
 assign tx_data = 
+    ((fsm == FSM_AXI_RD ) & axi_data       ) || 
+    ((fsm == FSM_AXI_RDC) & axi_ctrl       ) || 
     ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) || 
     ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) || 
     ((fsm == FSM_AXI_RD2) & axi_addr[15: 8]) || 
@@ -209,6 +254,8 @@ assign tx_data =
 
 // Signal that a word should be sent.
 assign tx_valid = 
+    (fsm == FSM_AXI_RD ) || 
+    (fsm == FSM_AXI_RDC) || 
     (fsm == FSM_AXI_RD0) || 
     (fsm == FSM_AXI_RD1) || 
     (fsm == FSM_AXI_RD2) || 
@@ -227,7 +274,96 @@ assign tx_valid =
 //
 
 //
-// These processes are responsible for updating the AXI address register.
+// Responsible for updating the axi_rd_go signal.
+//
+always @(posedge clk, negedge aresetn) begin : p_axi_rd_go
+    if(!aresetn) begin
+        axi_rd_go <= 1'b0;
+    end else if (m_axi_arready) begin
+        axi_rd_go <= 1'b0;
+    end else if(fsm == FSM_AXI_WRC && rx_valid && rx_data[`AXI_CTRL_RD]) begin
+        axi_rd_go <= 1'b1;
+    end
+end
+
+//
+// Responsible for updating the axi_wa_go signal.
+//
+always @(posedge clk, negedge aresetn) begin : p_axi_wa_go
+    if(!aresetn) begin
+        axi_wa_go <= 1'b0;
+    end else 
+        if (m_axi_awready) begin
+            axi_wa_go <= 1'b0;
+        end else if(fsm == FSM_AXI_WR && rx_valid) begin
+            axi_wa_go <= 1'b1;
+        end
+    end
+end
+
+//
+// Responsible for updating the axi_wr_go signal.
+//
+always @(posedge clk, negedge aresetn) begin : p_axi_wr_go
+    if(!aresetn) begin
+        axi_wr_go <= 1'b0;
+    end else 
+        if (m_axi_wready) begin
+            axi_wr_go <= 1'b0;
+        end else if(fsm == FSM_AXI_WR && rx_valid) begin
+            axi_wr_go <= 1'b1;
+        end
+    end
+end
+
+//
+// Responsible for updating the AXI control register
+//
+always @(posedge clk, negedge aresetn) begin : p_axi_ctrl
+    if(!aresetn) begin
+
+        axi_ctrl[`AXI_CTRL_RV] <= 1'b1;
+        axi_ctrl[`AXI_CTRL_WV] <= 1'b1;
+        axi_ctrl[`AXI_CTRL_AE] <= 1'b1;
+
+    end else begin
+        
+        if(fsm == FSM_AXI_WRC && rx_valid) begin
+            axi_ctrl[`AXI_CTRL_AE] <= rx_data; 
+        end
+
+        if(m_axi_rvalid) begin
+            axi_ctrl[`AXI_CTRL_RR] <= m_axi_rresp;
+            axi_ctrl[`AXI_CTRL_RV] <= 1'b1;
+        end else if (fsm == FSM_AXI_RD && tx_ready) begin
+            axi_ctrl[`AXI_CTRL_RV] <= 1'b0;
+        end
+        
+        if(m_axi_bvalid) begin
+            axi_ctrl[`AXI_CTRL_WR] <= m_axi_bresp;
+            axi_ctrl[`AXI_CTRL_WV] <= 1'b1;
+        end else if (fsm == FSM_AXI_RD && tx_ready) begin
+            axi_ctrl[`AXI_CTRL_WV] <= 1'b0;
+        end
+    end
+end
+
+//
+// Responsible for updating the AXI write data register.
+//
+always @(posedge clk) begin : p_axi_wdata
+    if(fsm == FSM_AXI_WR && rx_valid) m_axi_wdata <= rx_data;
+end
+
+//
+// Responsible for updating the AXI read data register.
+//
+always @(posedge clk) begin : p_axi_rdata
+    if(m_axi_rvalid) axi_data <= m_axi_rdata;
+end
+
+//
+// This process is responsible for updating the AXI address register.
 //
 always @(posedge clk, negedge aresetn) begin : p_axi_addr
     if(!aresetn) begin
