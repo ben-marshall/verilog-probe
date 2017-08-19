@@ -6,7 +6,7 @@
 //  control an AXI bus master and a set of general purpose inputs and outputs.
 //
 module uartprobe #(
-    parameter [31:0] GPO_ON_RESET      = 32'b0,
+    parameter [31:0] GPO_ON_RESET      = 32'hDEAD_BEEF,
     parameter [31:0] AXI_ADDR_ON_RESET = 32'b0
 )(
     
@@ -179,36 +179,36 @@ always @(*) begin : p_n_fsm
             end
         end
 
-        FSM_GPI_RD0 : n_fsm = tx_ready ? FSM_GPI_RD0 : FSM_IDLE;
-        FSM_GPI_RD1 : n_fsm = tx_ready ? FSM_GPI_RD1 : FSM_IDLE;
-        FSM_GPI_RD2 : n_fsm = tx_ready ? FSM_GPI_RD2 : FSM_IDLE;
-        FSM_GPI_RD3 : n_fsm = tx_ready ? FSM_GPI_RD3 : FSM_IDLE;
+        FSM_GPI_RD0 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPI_RD0;
+        FSM_GPI_RD1 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPI_RD1;
+        FSM_GPI_RD2 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPI_RD2;
+        FSM_GPI_RD3 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPI_RD3;
+                                                       
+        FSM_GPO_RD0 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD0;
+        FSM_GPO_RD1 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD1;
+        FSM_GPO_RD2 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD2;
+        FSM_GPO_RD3 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD3;
 
-        FSM_GPO_RD0 : n_fsm = tx_ready ? FSM_GPO_RD0 : FSM_IDLE;
-        FSM_GPO_RD1 : n_fsm = tx_ready ? FSM_GPO_RD1 : FSM_IDLE;
-        FSM_GPO_RD2 : n_fsm = tx_ready ? FSM_GPO_RD2 : FSM_IDLE;
-        FSM_GPO_RD3 : n_fsm = tx_ready ? FSM_GPO_RD3 : FSM_IDLE;
+        FSM_GPO_WR0 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR0;
+        FSM_GPO_WR1 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR1;
+        FSM_GPO_WR2 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR2;
+        FSM_GPO_WR3 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR3;
 
-        FSM_GPO_WR0 : n_fsm = rx_valid ? FSM_GPO_WR0 : FSM_IDLE;
-        FSM_GPO_WR1 : n_fsm = rx_valid ? FSM_GPO_WR1 : FSM_IDLE;
-        FSM_GPO_WR2 : n_fsm = rx_valid ? FSM_GPO_WR2 : FSM_IDLE;
-        FSM_GPO_WR3 : n_fsm = rx_valid ? FSM_GPO_WR3 : FSM_IDLE;
+        FSM_AXI_RD0 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD0;
+        FSM_AXI_RD1 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD1;
+        FSM_AXI_RD2 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD2;
+        FSM_AXI_RD3 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD3;
 
-        FSM_AXI_RD0 : n_fsm = tx_ready ? FSM_AXI_RD0 : FSM_IDLE;
-        FSM_AXI_RD1 : n_fsm = tx_ready ? FSM_AXI_RD1 : FSM_IDLE;
-        FSM_AXI_RD2 : n_fsm = tx_ready ? FSM_AXI_RD2 : FSM_IDLE;
-        FSM_AXI_RD3 : n_fsm = tx_ready ? FSM_AXI_RD3 : FSM_IDLE;
-
-        FSM_AXI_WR0 : n_fsm = rx_valid ? FSM_AXI_WR0 : FSM_IDLE;
-        FSM_AXI_WR1 : n_fsm = rx_valid ? FSM_AXI_WR1 : FSM_IDLE;
-        FSM_AXI_WR2 : n_fsm = rx_valid ? FSM_AXI_WR2 : FSM_IDLE;
-        FSM_AXI_WR3 : n_fsm = rx_valid ? FSM_AXI_WR3 : FSM_IDLE;
+        FSM_AXI_WR0 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR0;
+        FSM_AXI_WR1 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR1;
+        FSM_AXI_WR2 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR2;
+        FSM_AXI_WR3 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR3;
         
-        FSM_AXI_RD  : n_fsm = tx_valid ? FSM_AXI_RD  : FSM_IDLE;
-        FSM_AXI_WR  : n_fsm = rx_valid ? FSM_AXI_WR  : FSM_IDLE;
-        
-        FSM_AXI_RDC : n_fsm = tx_valid ? FSM_AXI_RDC : FSM_IDLE;
-        FSM_AXI_WRC : n_fsm = rx_valid ? FSM_AXI_WRC : FSM_IDLE;
+        FSM_AXI_RD  : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RD ;
+        FSM_AXI_WR  : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR ;
+                                                   
+        FSM_AXI_RDC : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RDC;
+        FSM_AXI_WRC : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WRC;
 
         default     : n_fsm = FSM_IDLE;
 
@@ -230,20 +230,20 @@ assign rx_ready = rx_valid;
 
 // Select a register to be read.
 assign tx_data = 
-    ((fsm == FSM_AXI_RD ) & axi_data[7:0]  ) || 
-    ((fsm == FSM_AXI_RDC) & axi_ctrl       ) || 
-    ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) || 
-    ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) || 
-    ((fsm == FSM_AXI_RD2) & axi_addr[15: 8]) || 
-    ((fsm == FSM_AXI_RD3) & axi_addr[ 7: 0]) || 
-    ((fsm == FSM_GPI_RD0) &      gpi[31:24]) || 
-    ((fsm == FSM_GPI_RD1) &      gpi[23:16]) || 
-    ((fsm == FSM_GPI_RD2) &      gpi[15: 8]) || 
-    ((fsm == FSM_GPI_RD3) &      gpi[ 7: 0]) || 
-    ((fsm == FSM_GPO_RD0) &      gpo[31:24]) || 
-    ((fsm == FSM_GPO_RD1) &      gpo[23:16]) || 
-    ((fsm == FSM_GPO_RD2) &      gpo[15: 8]) || 
-    ((fsm == FSM_GPO_RD3) &      gpo[ 7: 0])  ;
+    ((fsm == FSM_AXI_RD ) & axi_data[7:0]  ) | 
+    ((fsm == FSM_AXI_RDC) & axi_ctrl       ) | 
+    ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) | 
+    ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) | 
+    ((fsm == FSM_AXI_RD2) & axi_addr[15: 8]) | 
+    ((fsm == FSM_AXI_RD3) & axi_addr[ 7: 0]) | 
+    ((fsm == FSM_GPI_RD0) &      gpi[31:24]) | 
+    ((fsm == FSM_GPI_RD1) &      gpi[23:16]) | 
+    ((fsm == FSM_GPI_RD2) &      gpi[15: 8]) | 
+    ((fsm == FSM_GPI_RD3) &      gpi[ 7: 0]) | 
+    ((fsm == FSM_GPO_RD0) &      gpo[31:24]) | 
+    ((fsm == FSM_GPO_RD1) &      gpo[23:16]) | 
+    ((fsm == FSM_GPO_RD2) &      gpo[15: 8]) | 
+    ((fsm == FSM_GPO_RD3) &      gpo[ 7: 0]) ;
 
 
 // Signal that a word should be sent.
