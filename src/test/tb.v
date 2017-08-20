@@ -121,6 +121,11 @@ end
 
 // ---------------- DUT Model ------------------------------------------
 
+reg [ 1:0] model_axi_bresp;
+reg [ 1:0] model_axi_rresp;
+reg [31:0] model_axi_rdata;
+reg [31:0] model_axi_wdata;
+
 reg [31:0] model_axi_addr;
 reg [31:0] model_gpo     ;
 reg [31:0] model_gpi     ;
@@ -144,7 +149,10 @@ task handle_reads;
         @(posedge clk) begin
             m_axi_arready = 1'b0;
             m_axi_rdata = $random;
+            model_axi_rdata = m_axi_rdata;
             m_axi_rvalid = 1'b1;
+            m_axi_rresp  = $random;
+            model_axi_rresp = m_axi_rresp;
         end
 
         wait(m_axi_rready)
@@ -152,6 +160,58 @@ task handle_reads;
         @(posedge clk) begin
             m_axi_rvalid = 1'b0;
         end
+    end
+endtask
+
+
+//
+// Checks all AXI write transactions against expected values.
+//
+task handle_writes;
+    reg [31:0] wdata;
+    reg [31:0] addr;
+    forever begin
+        
+        fork
+            begin // Address channel
+                wait(m_axi_awvalid);
+                addr = m_axi_awaddr;
+                @(posedge clk) begin
+                    m_axi_awready = 1'b1;
+                end
+                @(posedge clk) begin
+                    m_axi_awready = 1'b0;
+                end
+            end
+            begin // Data channel
+                wait(m_axi_wvalid);
+                wdata = m_axi_wdata;
+                @(posedge clk) begin
+                    m_axi_wready = 1'b1;
+                end
+
+                @(posedge clk) begin
+                    m_axi_wready = 1'b0;
+                end
+            end
+        join
+                
+        if(wdata!= model_axi_wdata ||
+           addr != model_axi_addr  ) begin
+            $display("Write of %h to %h expected but got %h to %h",
+                model_axi_wdata, model_axi_addr,
+                m_axi_wdata, m_axi_awaddr);
+        end else begin
+            $display("AXI> Wrote %h to %h", wdata,addr);
+        end
+
+        @(posedge clk);
+        m_axi_bresp     = $random;
+        model_axi_bresp = $random;
+        m_axi_bvalid    = 1'b1;
+        wait(m_axi_bready == 1'b1);
+        @(posedge clk);
+        m_axi_bvalid    = 1'b0;;        
     end
 endtask
 
@@ -171,6 +231,7 @@ initial begin
     m_axi_wready=0;
     fork
         handle_reads();
+        handle_writes();
     join
 end
 
@@ -500,6 +561,21 @@ initial begin : main_test_sequence
 
         write_axi_addr(tgt,value);
         read_axi_addr(tgt);
+
+    end
+
+
+    //
+    // AXI Write Test
+    //
+    repeat (40) begin : random_write_axi_data
+        reg [7:0] value;
+
+        value   = $random;
+
+        $display("AXI> Write %h to memory", value);
+
+        write_axi_data(value);
 
     end
     
