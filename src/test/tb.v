@@ -188,6 +188,7 @@ task send_byte;
         wait(rx_ready);
         @(posedge clk);
         rx_valid = 1'b0;
+        @(posedge clk);
 
     end
 endtask
@@ -199,7 +200,6 @@ endtask
 //
 task recieve_byte;
     output [7:0] recieved;
-    input  [0:0] quiet;
     integer i;
     begin
         @(posedge clk);
@@ -209,11 +209,11 @@ task recieve_byte;
         tx_ready = 1'b1;
         @(posedge clk);
         wait(!tx_valid);
+        @(posedge clk);
         tx_ready = 1'b0;
-        if(!quiet) begin
-            $display("UART RX> Recieved byte: %h,\t %d,\t %b at time %d",
-                recieved,recieved,recieved, $time);
-        end
+        @(posedge clk);
+        $display("UART RX> Recieved byte: %h,\t %d,\t %b at time %d",
+            recieved,recieved,recieved, $time);
     end
 endtask
 
@@ -227,10 +227,13 @@ task expect_byte;
     input [7:0] expected_value;
     reg   [7:0] recieved_value;
     begin
-        recieve_byte(recieved_value, 1'b1);
+        @(posedge clk);
+        wait(!tx_valid);
+        expected_value = tx_data;
         if(expected_value != recieved_value) begin
             $display("[ERROR] Expected to recieve %h, got %h",
                 expected_value, recieved_value);
+            $finish(1);
         end
     end
 endtask
@@ -383,12 +386,23 @@ initial begin : main_test_sequence
     #(CLOCK_PERIOD*40);
 
     // Some reads.
-    read_gpo(0);
-    write_gpo(0,8'hAB);
-    fork
-    read_gpo(0);
-    join
-    expect_byte(8'hAB);
+    repeat (40) begin : random_read_write
+        reg [1:0] tgt;
+        reg [7:0] value;
+
+        tgt     = $random;
+        value   = $random;
+
+        $display("RRW> Write %h to GPO %d", value, tgt);
+
+        read_gpo(tgt);
+        write_gpo(tgt,value);
+        fork
+            read_gpo(tgt);
+            expect_byte(value);
+        join
+
+    end
     
     #(CLOCK_PERIOD*4);
     
@@ -403,7 +417,7 @@ end
 initial begin : uart_tx_monitor
     forever begin : uart_tx_monitor_loop
         reg [7:0] recieved;
-        recieve_byte(recieved,1'b0);
+        recieve_byte(recieved);
     end
 end
 
