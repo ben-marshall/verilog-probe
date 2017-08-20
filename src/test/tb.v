@@ -200,13 +200,14 @@ task handle_writes;
             end
         join
                 
-        if(wdata!= model_axi_wdata ||
-           addr != model_axi_addr  ) begin
+        if(wdata== model_axi_wdata &&
+           addr == model_axi_addr  ) begin
+            $display("AXI> Wrote %h to %h", wdata,addr);
+        end else begin
             $display("Write of %h to %h expected but got %h to %h",
                 model_axi_wdata, model_axi_addr,
                 m_axi_wdata, m_axi_awaddr);
-        end else begin
-            $display("AXI> Wrote %h to %h", wdata,addr);
+            $finish(1);
         end
 
         @(posedge clk);
@@ -509,6 +510,7 @@ endtask
 task write_axi_data;
     input [7:0] value;
     begin
+        model_axi_wdata = value;
         send_byte(CMD_AXI_WR);
         send_byte(value);
     end
