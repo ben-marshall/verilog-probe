@@ -93,6 +93,10 @@ always #(CLOCK_PERIOD) clk = !clk;
 
 initial rx_valid = 1'b0;
 initial tx_ready = 1'b0;
+initial begin
+    gpi      = $random;
+    model_gpi = gpi;
+end
 
 //
 // Wave dumping and reset.
@@ -299,13 +303,13 @@ task expect_byte;
 
         recieved_value = tx_data;
 
-        if(expected_value != recieved_value) begin
+        if(expected_value == recieved_value) begin
+            $display("Expected to recieve %h, got %h",
+                expected_value, recieved_value);
+        end else begin
             $display("[ERROR] Expected to recieve %h, got %h",
                 expected_value, recieved_value);
             $finish(1);
-        end else begin
-            $display("Expected to recieve %h, got %h",
-                expected_value, recieved_value);
         end
     end
 endtask
@@ -320,17 +324,17 @@ task read_gpi;
     input [1:0] gpi;
     begin
         case(gpi)
-            0   : begin 
-                send_byte(CMD_GPI_RD0); expect_byte(model_gpi[31:24]);
-            end
-            1   : begin
-                send_byte(CMD_GPI_RD1); expect_byte(model_gpi[23:16]);
+            3   : begin 
+                send_byte(CMD_GPI_RD3); expect_byte(model_gpi[31:24]);
             end
             2   : begin
-                send_byte(CMD_GPI_RD2); expect_byte(model_gpi[15: 8]);
+                send_byte(CMD_GPI_RD2); expect_byte(model_gpi[23:16]);
             end
-            3   : begin
-                send_byte(CMD_GPI_RD3); expect_byte(model_gpi[ 7: 0]);
+            1   : begin
+                send_byte(CMD_GPI_RD1); expect_byte(model_gpi[15: 8]);
+            end
+            0   : begin
+                send_byte(CMD_GPI_RD0); expect_byte(model_gpi[ 7: 0]);
             end
         endcase
     end
@@ -475,7 +479,11 @@ endtask
 //      Write a value to the AXI control register.
 //  
 task write_axi_ctrl;
-    send_byte(CMD_AXI_WRC);
+    input [7:0] value;
+    begin
+        send_byte(CMD_AXI_WRC);
+        send_byte(value);
+    end
 endtask
 
 
@@ -520,7 +528,6 @@ initial begin : main_test_sequence
         reg [1:0] tgt;
 
         tgt     = $random;
-        model_gpi = $random;
 
         $display("GPI> Read GPI %d", tgt);
         read_gpi(tgt);
@@ -576,6 +583,19 @@ initial begin : main_test_sequence
         $display("AXI> Write %h to memory", value);
 
         write_axi_data(value);
+
+    end
+    
+    //
+    // AXI Read Test
+    //
+    repeat (40) begin : random_read_axi_data
+        
+        $display("AXI> Read from memory");
+
+        write_axi_ctrl(8'b0000_0001); // Do a read.
+        read_axi_data();              // Return the read data.
+        expect_byte(model_axi_rdata);
 
     end
     
