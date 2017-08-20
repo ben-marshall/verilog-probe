@@ -119,6 +119,12 @@ always @(posedge clk) begin
     end
 end
 
+// ---------------- DUT Model ------------------------------------------
+
+reg [31:0] model_axi_addr;
+reg [31:0] model_gpo     ;
+reg [31:0] model_gpi     ;
+
 
 // ---------------- AXI Handling ---------------------------------------
     
@@ -253,10 +259,18 @@ task read_gpi;
     input [1:0] gpi;
     begin
         case(gpi)
-            0   : send_byte(CMD_GPI_RD0);
-            1   : send_byte(CMD_GPI_RD1);
-            2   : send_byte(CMD_GPI_RD2);
-            3   : send_byte(CMD_GPI_RD3);
+            0   : begin 
+                send_byte(CMD_GPI_RD0); expect_byte(model_gpi[31:24]);
+            end
+            1   : begin
+                send_byte(CMD_GPI_RD1); expect_byte(model_gpi[23:16]);
+            end
+            2   : begin
+                send_byte(CMD_GPI_RD2); expect_byte(model_gpi[15: 8]);
+            end
+            3   : begin
+                send_byte(CMD_GPI_RD3); expect_byte(model_gpi[ 7: 0]);
+            end
         endcase
     end
 endtask
@@ -271,10 +285,22 @@ task read_gpo;
     input [1:0] gpo;
     begin
         case(gpo)
-            0   : send_byte(CMD_GPO_RD0);
-            1   : send_byte(CMD_GPO_RD1);
-            2   : send_byte(CMD_GPO_RD2);
-            3   : send_byte(CMD_GPO_RD3);
+            0   : begin
+                send_byte(CMD_GPO_RD0);
+                expect_byte(model_gpo[ 7: 0]);
+            end
+            1   : begin
+                send_byte(CMD_GPO_RD1);
+                expect_byte(model_gpo[15: 8]);
+            end
+            2   : begin
+                send_byte(CMD_GPO_RD2);
+                expect_byte(model_gpo[23:16]);
+            end
+            3   : begin
+                send_byte(CMD_GPO_RD3);
+                expect_byte(model_gpo[31:24]);
+            end
         endcase
     end
 endtask
@@ -290,10 +316,22 @@ task write_gpo;
     input [7:0] val;
     begin
         case(gpo)
-            0   : send_byte(CMD_GPO_WR0);
-            1   : send_byte(CMD_GPO_WR1);
-            2   : send_byte(CMD_GPO_WR2);
-            3   : send_byte(CMD_GPO_WR3);
+            0   : begin
+                send_byte(CMD_GPO_WR0);
+                model_gpo[7:0] = val;
+            end
+            1   : begin
+                send_byte(CMD_GPO_WR1);
+                model_gpo[15:8] = val;
+            end
+            2   : begin 
+                send_byte(CMD_GPO_WR2);
+                model_gpo[23:16] = val;
+            end
+            3   : begin
+                send_byte(CMD_GPO_WR3);
+                model_gpo[31:24] = val;
+            end
         endcase
         send_byte(val);
     end
@@ -308,11 +346,23 @@ endtask
 task read_axi_addr;
     input [1:0] byte;
     begin
-        case(byte)
-            0   : send_byte(CMD_AXI_RD0);
-            1   : send_byte(CMD_AXI_RD1);
-            2   : send_byte(CMD_AXI_RD2);
-            3   : send_byte(CMD_AXI_RD3);
+       case(byte)
+            0   : begin
+                send_byte(CMD_AXI_RD0);
+                expect_byte(model_axi_addr[ 7: 0]);
+            end
+            1   : begin
+                send_byte(CMD_AXI_RD1);
+                expect_byte(model_axi_addr[15: 8]);
+            end
+            2   : begin
+                send_byte(CMD_AXI_RD2);
+                expect_byte(model_axi_addr[23:16]);
+            end
+            3   : begin
+                send_byte(CMD_AXI_RD3);
+                expect_byte(model_axi_addr[31:24]);
+            end
         endcase
     end
 endtask
@@ -325,15 +375,27 @@ endtask
 //  
 task write_axi_addr;
     input [1:0] byte;
-    input [7:0] value;
+    input [7:0] val;
     begin
         case(byte)
-            0   : send_byte(CMD_AXI_WR0);
-            1   : send_byte(CMD_AXI_WR1);
-            2   : send_byte(CMD_AXI_WR2);
-            3   : send_byte(CMD_AXI_WR3);
+            0   : begin
+                send_byte(CMD_AXI_WR0);
+                model_axi_addr[7:0] = val;
+            end
+            1   : begin
+                send_byte(CMD_AXI_WR1);
+                model_axi_addr[15:8] = val;
+            end
+            2   : begin 
+                send_byte(CMD_AXI_WR2);
+                model_axi_addr[23:16] = val;
+            end
+            3   : begin
+                send_byte(CMD_AXI_WR3);
+                model_axi_addr[31:24] = val;
+            end
         endcase
-        send_byte(value);
+        send_byte(val);
     end
 endtask
 
@@ -397,23 +459,10 @@ initial begin : main_test_sequence
         reg [1:0] tgt;
 
         tgt     = $random;
-        gpi     = $random;
+        model_gpi = $random;
 
         $display("GPI> Read GPI %d", tgt);
-
-        fork
-            begin
-                read_gpi(tgt);
-            end
-            begin
-                case(tgt)
-                    3: expect_byte(gpi[31:24]);
-                    2: expect_byte(gpi[23:16]);
-                    1: expect_byte(gpi[15: 8]);
-                    0: expect_byte(gpi[ 7: 0]);
-                endcase
-            end
-        join
+        read_gpi(tgt);
 
         // Don't change anything again until the probe is IDLE.
         wait(tx_valid ~& tx_ready);
@@ -433,10 +482,7 @@ initial begin : main_test_sequence
         $display("GPO> Write %h to GPO %d", value, tgt);
 
         write_gpo(tgt,value);
-        fork
-            read_gpo(tgt);
-            expect_byte(value);
-        join
+        read_gpo(tgt);
     end
 
 
@@ -453,10 +499,7 @@ initial begin : main_test_sequence
         $display("AXI> Write %h to Addr %d", value, tgt);
 
         write_axi_addr(tgt,value);
-        fork
-            read_axi_addr(tgt);
-            expect_byte(value);
-        join
+        read_axi_addr(tgt);
 
     end
     
