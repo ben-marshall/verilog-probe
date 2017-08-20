@@ -481,6 +481,9 @@ endtask
 task write_axi_ctrl;
     input [7:0] value;
     begin
+        if(value[1]) begin
+            model_axi_addr = model_axi_addr + 1;
+        end
         send_byte(CMD_AXI_WRC);
         send_byte(value);
     end
