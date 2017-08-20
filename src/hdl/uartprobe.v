@@ -204,10 +204,10 @@ always @(*) begin : p_n_fsm
         FSM_AXI_WR2 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR2;
         FSM_AXI_WR3 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR3;
         
-        FSM_AXI_RD  : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RD ;
+        FSM_AXI_RD  : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD ;
         FSM_AXI_WR  : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR ;
                                                    
-        FSM_AXI_RDC : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RDC;
+        FSM_AXI_RDC : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RDC;
         FSM_AXI_WRC : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WRC;
 
         default     : n_fsm = FSM_IDLE;
