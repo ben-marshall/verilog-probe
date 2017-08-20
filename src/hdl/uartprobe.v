@@ -100,30 +100,30 @@ reg [5:0] n_fsm;    // Next FSM state
 //
 // Expected byte values recieved on the RX lines which indicate particular
 // commands.
-localparam [7:0] CMD_GPI_RD0    = 'd2;
-localparam [7:0] CMD_GPI_RD1    = 'd3;
-localparam [7:0] CMD_GPI_RD2    = 'd4;
-localparam [7:0] CMD_GPI_RD3    = 'd5;
-localparam [7:0] CMD_GPO_RD0    = 'd6;
-localparam [7:0] CMD_GPO_RD1    = 'd7;
-localparam [7:0] CMD_GPO_RD2    = 'd8;
-localparam [7:0] CMD_GPO_RD3    = 'd9;
-localparam [7:0] CMD_GPO_WR0    = 'd10;
-localparam [7:0] CMD_GPO_WR1    = 'd11;
-localparam [7:0] CMD_GPO_WR2    = 'd12;
-localparam [7:0] CMD_GPO_WR3    = 'd13;
-localparam [7:0] CMD_AXI_RD0    = 'd14;
-localparam [7:0] CMD_AXI_RD1    = 'd15;
-localparam [7:0] CMD_AXI_RD2    = 'd16;
-localparam [7:0] CMD_AXI_RD3    = 'd17;
-localparam [7:0] CMD_AXI_WR0    = 'd18;
-localparam [7:0] CMD_AXI_WR1    = 'd19;
-localparam [7:0] CMD_AXI_WR2    = 'd20;
-localparam [7:0] CMD_AXI_WR3    = 'd21;
-localparam [7:0] CMD_AXI_RD     = 'd22;
-localparam [7:0] CMD_AXI_WR     = 'd23;
-localparam [7:0] CMD_AXI_RDC    = 'd24;
-localparam [7:0] CMD_AXI_WRC    = 'd25;
+localparam [7:0] CMD_GPI_RD0    = 8'd2;
+localparam [7:0] CMD_GPI_RD1    = 8'd3;
+localparam [7:0] CMD_GPI_RD2    = 8'd4;
+localparam [7:0] CMD_GPI_RD3    = 8'd5;
+localparam [7:0] CMD_GPO_RD0    = 8'd6;
+localparam [7:0] CMD_GPO_RD1    = 8'd7;
+localparam [7:0] CMD_GPO_RD2    = 8'd8;
+localparam [7:0] CMD_GPO_RD3    = 8'd9;
+localparam [7:0] CMD_GPO_WR0    = 8'd10;
+localparam [7:0] CMD_GPO_WR1    = 8'd11;
+localparam [7:0] CMD_GPO_WR2    = 8'd12;
+localparam [7:0] CMD_GPO_WR3    = 8'd13;
+localparam [7:0] CMD_AXI_RD0    = 8'd14;
+localparam [7:0] CMD_AXI_RD1    = 8'd15;
+localparam [7:0] CMD_AXI_RD2    = 8'd16;
+localparam [7:0] CMD_AXI_RD3    = 8'd17;
+localparam [7:0] CMD_AXI_WR0    = 8'd18;
+localparam [7:0] CMD_AXI_WR1    = 8'd19;
+localparam [7:0] CMD_AXI_WR2    = 8'd20;
+localparam [7:0] CMD_AXI_WR3    = 8'd21;
+localparam [7:0] CMD_AXI_RD     = 8'd22;
+localparam [7:0] CMD_AXI_WR     = 8'd23;
+localparam [7:0] CMD_AXI_RDC    = 8'd24;
+localparam [7:0] CMD_AXI_WRC    = 8'd25;
 
 //
 // FSM State encodings
@@ -230,20 +230,20 @@ assign rx_ready = rx_valid;
 
 // Select a register to be read.
 assign tx_data = 
-    ((fsm == FSM_AXI_RD ) & axi_data[7:0]  ) | 
-    ((fsm == FSM_AXI_RDC) & axi_ctrl       ) | 
-    ((fsm == FSM_AXI_RD0) & axi_addr[31:24]) | 
-    ((fsm == FSM_AXI_RD1) & axi_addr[23:16]) | 
-    ((fsm == FSM_AXI_RD2) & axi_addr[15: 8]) | 
-    ((fsm == FSM_AXI_RD3) & axi_addr[ 7: 0]) | 
-    ((fsm == FSM_GPI_RD0) &      gpi[31:24]) | 
-    ((fsm == FSM_GPI_RD1) &      gpi[23:16]) | 
-    ((fsm == FSM_GPI_RD2) &      gpi[15: 8]) | 
-    ((fsm == FSM_GPI_RD3) &      gpi[ 7: 0]) | 
-    ((fsm == FSM_GPO_RD0) &      gpo[31:24]) | 
-    ((fsm == FSM_GPO_RD1) &      gpo[23:16]) | 
-    ((fsm == FSM_GPO_RD2) &      gpo[15: 8]) | 
-    ((fsm == FSM_GPO_RD3) &      gpo[ 7: 0]) ;
+    ({8{fsm == FSM_AXI_RD }} & axi_data[7:0]  ) | 
+    ({8{fsm == FSM_AXI_RDC}} & axi_ctrl       ) | 
+    ({8{fsm == FSM_AXI_RD3}} & axi_addr[31:24]) | 
+    ({8{fsm == FSM_AXI_RD2}} & axi_addr[23:16]) | 
+    ({8{fsm == FSM_AXI_RD1}} & axi_addr[15: 8]) | 
+    ({8{fsm == FSM_AXI_RD0}} & axi_addr[ 7: 0]) | 
+    ({8{fsm == FSM_GPI_RD3}} &      gpi[31:24]) | 
+    ({8{fsm == FSM_GPI_RD2}} &      gpi[23:16]) | 
+    ({8{fsm == FSM_GPI_RD1}} &      gpi[15: 8]) | 
+    ({8{fsm == FSM_GPI_RD0}} &      gpi[ 7: 0]) | 
+    ({8{fsm == FSM_GPO_RD3}} &      gpo[31:24]) | 
+    ({8{fsm == FSM_GPO_RD2}} &      gpo[23:16]) | 
+    ({8{fsm == FSM_GPO_RD1}} &      gpo[15: 8]) | 
+    ({8{fsm == FSM_GPO_RD0}} &      gpo[ 7: 0]) ;
 
 
 // Signal that a word should be sent.
