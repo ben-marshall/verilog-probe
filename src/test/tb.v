@@ -202,16 +202,16 @@ task recieve_byte;
     output [7:0] recieved;
     integer i;
     begin
-        @(posedge clk);
         wait(tx_valid);
         @(posedge clk);
+        
         recieved = tx_data;
         tx_ready = 1'b1;
-        @(posedge clk);
+        
         wait(!tx_valid);
         @(posedge clk);
+        
         tx_ready = 1'b0;
-        @(posedge clk);
         $display("UART RX> Recieved byte: %h,\t %d,\t %b at time %d",
             recieved,recieved,recieved, $time);
     end
@@ -227,13 +227,18 @@ task expect_byte;
     input [7:0] expected_value;
     reg   [7:0] recieved_value;
     begin
+        wait(tx_valid);
         @(posedge clk);
-        wait(!tx_valid);
-        expected_value = tx_data;
+
+        recieved_value = tx_data;
+
         if(expected_value != recieved_value) begin
             $display("[ERROR] Expected to recieve %h, got %h",
                 expected_value, recieved_value);
             $finish(1);
+        end else begin
+            $display("Expected to recieve %h, got %h",
+                expected_value, recieved_value);
         end
     end
 endtask
@@ -385,20 +390,42 @@ initial begin : main_test_sequence
 
     #(CLOCK_PERIOD*40);
 
-    // Some reads.
-    repeat (40) begin : random_read_write
+
+    //
+    // General Purpose Output test
+    //
+    repeat (40) begin : random_read_write_gpo
         reg [1:0] tgt;
         reg [7:0] value;
 
         tgt     = $random;
         value   = $random;
 
-        $display("RRW> Write %h to GPO %d", value, tgt);
+        $display("GPO> Write %h to GPO %d", value, tgt);
 
-        read_gpo(tgt);
         write_gpo(tgt,value);
         fork
             read_gpo(tgt);
+            expect_byte(value);
+        join
+    end
+
+
+    //
+    // AXI Address Test
+    //
+    repeat (40) begin : random_read_write_axi_addr
+        reg [1:0] tgt;
+        reg [7:0] value;
+
+        tgt     = $random;
+        value   = $random;
+
+        $display("AXI> Write %h to Addr %d", value, tgt);
+
+        write_axi_addr(tgt,value);
+        fork
+            read_axi_addr(tgt);
             expect_byte(value);
         join
 

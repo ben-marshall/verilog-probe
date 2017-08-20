@@ -15,7 +15,7 @@ input             m_aresetn,
 
 input             rx_valid,
 input      [ 7:0] rx_data,
-output            rx_ready,
+output reg        rx_ready,
              
 output            tx_valid,
 output     [ 7:0] tx_data,
@@ -172,7 +172,7 @@ always @(*) begin : p_n_fsm
         FSM_RESET   : n_fsm = FSM_IDLE;
         
         FSM_IDLE    : begin
-            if(rx_valid) begin
+            if(rx_ready) begin
                 n_fsm = rx_data[5:0];
             end else begin
                 n_fsm = FSM_IDLE;
@@ -189,26 +189,26 @@ always @(*) begin : p_n_fsm
         FSM_GPO_RD2 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD2;
         FSM_GPO_RD3 : n_fsm = tx_ready ? FSM_IDLE : FSM_GPO_RD3;
 
-        FSM_GPO_WR0 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR0;
-        FSM_GPO_WR1 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR1;
-        FSM_GPO_WR2 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR2;
-        FSM_GPO_WR3 : n_fsm = rx_valid ? FSM_IDLE : FSM_GPO_WR3;
+        FSM_GPO_WR0 : n_fsm = rx_ready ? FSM_IDLE : FSM_GPO_WR0;
+        FSM_GPO_WR1 : n_fsm = rx_ready ? FSM_IDLE : FSM_GPO_WR1;
+        FSM_GPO_WR2 : n_fsm = rx_ready ? FSM_IDLE : FSM_GPO_WR2;
+        FSM_GPO_WR3 : n_fsm = rx_ready ? FSM_IDLE : FSM_GPO_WR3;
 
         FSM_AXI_RD0 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD0;
         FSM_AXI_RD1 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD1;
         FSM_AXI_RD2 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD2;
         FSM_AXI_RD3 : n_fsm = tx_ready ? FSM_IDLE : FSM_AXI_RD3;
 
-        FSM_AXI_WR0 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR0;
-        FSM_AXI_WR1 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR1;
-        FSM_AXI_WR2 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR2;
-        FSM_AXI_WR3 : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR3;
+        FSM_AXI_WR0 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR0;
+        FSM_AXI_WR1 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR1;
+        FSM_AXI_WR2 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR2;
+        FSM_AXI_WR3 : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR3;
         
         FSM_AXI_RD  : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RD ;
-        FSM_AXI_WR  : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WR ;
+        FSM_AXI_WR  : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WR ;
                                                    
         FSM_AXI_RDC : n_fsm = tx_valid ? FSM_IDLE : FSM_AXI_RDC;
-        FSM_AXI_WRC : n_fsm = rx_valid ? FSM_IDLE : FSM_AXI_WRC;
+        FSM_AXI_WRC : n_fsm = rx_ready ? FSM_IDLE : FSM_AXI_WRC;
 
         default     : n_fsm = FSM_IDLE;
 
@@ -222,7 +222,7 @@ end
 
 // Signal we have read the recieved RX data and that we are ready for the
 // next one. Everything is caught and dealt with in one cycle.
-assign rx_ready = rx_valid;
+always @(posedge clk) rx_ready <= rx_valid;
 
 // 
 // ---------------------- UART TX Channel -------------------------------------
@@ -357,20 +357,22 @@ always @(posedge clk) begin : p_axi_rdata
     if(m_axi_rvalid) axi_data <= m_axi_rdata[7:0];
 end
 
+wire [31:0] n_axi_addr = 
+    !rx_ready          ? axi_addr                   :
+    fsm == FSM_AXI_WR0 ? {axi_addr[31:8], rx_data} :
+    fsm == FSM_AXI_WR1 ? {axi_addr[31:16], rx_data, axi_addr[7:0]} :
+    fsm == FSM_AXI_WR2 ? {axi_addr[31:24], rx_data, axi_addr[15:0]} :
+    fsm == FSM_AXI_WR3 ? {rx_data, axi_addr[23:0]} :
+                          axi_addr;
+
 //
 // This process is responsible for updating the AXI address register.
 //
 always @(posedge clk, negedge m_aresetn) begin : p_axi_addr
     if(!m_aresetn) begin
         axi_addr <= AXI_ADDR_ON_RESET;
-    end else if (fsm == FSM_AXI_WR0 && rx_valid) begin
-        axi_addr <= {axi_addr[31:8], rx_data};
-    end else if (fsm == FSM_AXI_WR1 && rx_valid) begin
-        axi_addr <= {axi_addr[31:16], rx_data, axi_addr[7:0]};
-    end else if (fsm == FSM_AXI_WR2 && rx_valid) begin
-        axi_addr <= {axi_addr[31:24], rx_data, axi_addr[15:0]};
-    end else if (fsm == FSM_AXI_WR3 && rx_valid) begin
-        axi_addr <= {rx_data, axi_addr[23:0]};
+    end else begin
+        axi_addr <= n_axi_addr;
     end
 end
 
