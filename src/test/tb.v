@@ -390,6 +390,35 @@ initial begin : main_test_sequence
 
     #(CLOCK_PERIOD*40);
 
+    //
+    // General Purpose Input test
+    //
+    repeat (40) begin : random_read_write_gpi
+        reg [1:0] tgt;
+
+        tgt     = $random;
+        gpi     = $random;
+
+        $display("GPI> Read GPI %d", tgt);
+
+        fork
+            begin
+                read_gpi(tgt);
+            end
+            begin
+                case(tgt)
+                    3: expect_byte(gpi[31:24]);
+                    2: expect_byte(gpi[23:16]);
+                    1: expect_byte(gpi[15: 8]);
+                    0: expect_byte(gpi[ 7: 0]);
+                endcase
+            end
+        join
+
+        // Don't change anything again until the probe is IDLE.
+        wait(tx_valid ~& tx_ready);
+    end
+
 
     //
     // General Purpose Output test
