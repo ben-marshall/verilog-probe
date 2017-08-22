@@ -18,7 +18,7 @@ localparam [7:0] CMD_GPI_RD2    = 8'd4;
 localparam [7:0] CMD_GPI_RD3    = 8'd5;
 localparam [7:0] CMD_GPO_RD0    = 8'd6;
 localparam [7:0] CMD_GPO_RD1    = 8'd7;
-localparam [7:0] CMD_GPO_RD2    = 8'd8;
+localparam [6:0] CMD_GPO_RD2    = 8'd8;
 localparam [7:0] CMD_GPO_RD3    = 8'd9;
 localparam [7:0] CMD_GPO_WR0    = 8'd10;
 localparam [7:0] CMD_GPO_WR1    = 8'd11;
@@ -525,6 +525,8 @@ initial begin : main_test_sequence
     integer i;
 
     #(CLOCK_PERIOD*40);
+
+    write_axi_ctrl(8'b0);
 
     //
     // General Purpose Input test
