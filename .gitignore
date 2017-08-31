@@ -6,3 +6,5 @@
 
 work/*
 xilinx/*
+
+*__pycache__*

@@ -18,6 +18,43 @@ class ProbeInterface(object):
         Create the interface.
         """
 
+    def printRegisters(self):
+        """
+        Reads all information it can from the probe and prints it to the
+        terminal.
+        """
+        
+        gpi  = (self.do_RDGPI0(),
+                self.do_RDGPI1(),
+                self.do_RDGPI2(),
+                self.do_RDGPI3())
+        
+        gpo  = (self.do_RDGPO0(),
+                self.do_RDGPO1(),
+                self.do_RDGPO2(),
+                self.do_RDGPO3())
+        
+        axi_a= (self.do_RDAXA0(),
+                self.do_RDAXA1(),
+                self.do_RDAXA2(),
+                self.do_RDAXA3())
+
+        axi_d= (self.do_RDAXD(),)
+        
+        ctrl = (self.do_AXRDCS(),)
+
+        print("Probe Registers:")
+        print("\tGPI   : %d %d %d %d" % gpi   )
+        print("\tGPO   : %d %d %d %d" % gpo   )
+        print("\tAXI A : %d %d %d %d" % axi_a )
+        print("\tAXI D : %d"          % axi_d )
+        print("\tCTRL  : %d"          % ctrl  )
+    
+    # -----------------------------------------------------------------------
+    # It is expected that functions below this point are overriden. They are
+    # deliberately left as stubs.
+    # -----------------------------------------------------------------------
+
     def do_RDGPI0(self):
         """
         Perform the command '' and return the result.
