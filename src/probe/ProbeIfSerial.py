@@ -41,6 +41,7 @@ class ProbeIfSerial(ProbeInterface):
         """
         assert(len(value) == 1)
         assert(type(value) == bytes)
+        print(">> %b %h %s %d" % (val,val,val,val))
         self.port.write(val)
 
 
@@ -48,8 +49,9 @@ class ProbeIfSerial(ProbeInterface):
         """
         Read one byte from the probe.
         """
-        return self.port.read(size=1)
-
+        data = self.port.read(size=1)
+        print("<< %b %h %s %d" % (val,val,val,val))
+        return 
 
     def do_RDGPI0(self):
         """
