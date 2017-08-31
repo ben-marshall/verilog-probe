@@ -56,7 +56,8 @@ class ProbeProgram(object):
         """
         Main entry point function for the program.
         """
-        self.probe.open(self.portname, baud=self.baudrate)
+        self.probe.open(self.portname, baud=self.baudrate,
+            timeout=None)
         
         if(self.command == pc.CMD_PRINT_REGISTERS):
             self.probe.printRegisters()

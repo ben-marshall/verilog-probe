@@ -39,9 +39,10 @@ class ProbeIfSerial(ProbeInterface):
         """
         Send one byte to the probe.
         """
-        assert(len(value) == 1)
-        assert(type(value) == bytes)
-        print(">> %b %h %s %d" % (val,val,val,val))
+        assert(len(val) == 1)
+        assert(type(val) == bytes)
+        v = str(val, encoding="ascii")
+        print(">> %s"%v)
         self.port.write(val)
 
 
@@ -50,7 +51,8 @@ class ProbeIfSerial(ProbeInterface):
         Read one byte from the probe.
         """
         data = self.port.read(size=1)
-        print("<< %b %h %s %d" % (val,val,val,val))
+        v = str(data,encoding="ascii")
+        print(">> %s"%v)
         return 
 
     def do_RDGPI0(self):
@@ -58,56 +60,56 @@ class ProbeIfSerial(ProbeInterface):
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPI0))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPI1(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPI1))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPI2(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPI2))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPI3(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPI3))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPO0(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPO0))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPO1(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPO1))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPO2(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPO2))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDGPO3(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDGPO2))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_WRGPO0(self, value):
         """
@@ -154,28 +156,28 @@ class ProbeIfSerial(ProbeInterface):
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDAXA0))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDAXA1(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDAXA1))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDAXA2(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDAXA2))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_RDAXA3(self):
         """
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDAXA3))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_WRAXA0(self, value):
         """
@@ -222,7 +224,7 @@ class ProbeIfSerial(ProbeInterface):
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_RDAXD))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_WRAXD (self, value):
         """
@@ -239,7 +241,7 @@ class ProbeIfSerial(ProbeInterface):
         Perform the command '' and return the result.
         """
         self.__send__(bytes(pc.PROBE_CMD_AXRDCS))
-        return self.__recv__(size=1)
+        return self.__recv__()
 
     def do_AXWRCS(self, AE=True):
         """
