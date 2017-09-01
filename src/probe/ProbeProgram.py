@@ -24,6 +24,7 @@ class ProbeProgram(object):
         parser = argparse.ArgumentParser(description=__doc__)
 
         commands = [
+            pc.CMD_TRY_CONNECT,
             pc.CMD_PRINT_REGISTERS
         ]
         
@@ -52,17 +53,37 @@ class ProbeProgram(object):
         self.probe = ProbeIfSerial()
 
 
+    def testOpen(self):
+        """
+        Checks if the port is open. Returns 1 if not, 0 if it is open.
+        """
+        if(self.probe.connected()):
+            print("Probe successfully connected on port '%s'" % self.portname)
+            return 0
+        else:
+            print("Probe not connected")
+            return 1
+
+
     def main(self):
         """
         Main entry point function for the program.
         """
-        self.probe.open(self.portname, baud=self.baudrate,
-            timeout=None)
+        try:
+            self.probe.open(self.portname, baud=self.baudrate,
+                timeout=None)
+        except Exception as e:
+            print("[ERROR] Could not open port '%s'",self.portname)
+            print(e)
+
+        tr = 0
         
         if(self.command == pc.CMD_PRINT_REGISTERS):
-            self.probe.printRegisters()
+            tr = self.probe.printRegisters()
+        elif(self.command == pc.CMD_TRY_CONNECT):
+            tr = self.testOpen()
 
-        return 0
+        return tr
 
 
 if(__name__ == "__main__"):

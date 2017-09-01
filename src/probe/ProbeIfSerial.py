@@ -28,11 +28,11 @@ class ProbeIfSerial(ProbeInterface):
         self.port.timeout   = timeout
         self.port.open()
 
-    def isOpen(self):
+    def connected(self):
         """
         Have we successfully opened a connection to the port?
         """
-        return port.is_open
+        return self.port.is_open
 
 
     def __send__(self,val):

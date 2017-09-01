@@ -35,6 +35,7 @@ PROBE_CMD_AXRDCS = bytes("\x18", "ascii")
 PROBE_CMD_AXWRCS = bytes("\x19", "ascii")
 
 CMD_PRINT_REGISTERS = "print-registers"
+CMD_TRY_CONNECT     = "test"
 
 
 def color_stdout(col=30, light=1):

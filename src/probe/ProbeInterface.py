@@ -23,6 +23,9 @@ class ProbeInterface(object):
         Reads all information it can from the probe and prints it to the
         terminal.
         """
+
+        if(not self.connected()):
+            return 1
         
         gpi  = (self.do_RDGPI0(),
                 self.do_RDGPI1(),
@@ -49,11 +52,19 @@ class ProbeInterface(object):
         print("\tAXI A : %s %s %s %s" % axi_a )
         print("\tAXI D : %s"          % axi_d )
         print("\tCTRL  : %s"          % ctrl  )
+
+        return 0
     
     # -----------------------------------------------------------------------
     # It is expected that functions below this point are overriden. They are
     # deliberately left as stubs.
     # -----------------------------------------------------------------------
+    
+    def connected(self):
+        """
+        Have we successfully opened a connection to the probe
+        """
+        return True
 
     def do_RDGPI0(self):
         """
