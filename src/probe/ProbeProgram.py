@@ -42,10 +42,22 @@ class ProbeProgram(object):
         gpi_parser.set_defaults(func = self.cmdGPI)
         gpi_parser.description = "Allows for reading of the general purpose inputs"
         gpi_single = gpi_parser.add_mutually_exclusive_group(required=True)
-        gpi_single.add_argument("--input", type=int,choices=range(0,31),
+        gpi_single.add_argument("--readbit", type=int,choices=range(0,32),
             help="Read an individual input and print its value")
         gpi_single.add_argument("--all", action="store_true",
             help="Print the values of all general purpose inputs.")
+
+        gpo_parser = subparsers.add_parser(pc.CMD_GPO)
+        gpo_parser.set_defaults(func = self.cmdGPO)
+        gpo_parser.description = "Allows control of the general purpose outputs"
+        gpo_parser.add_argument("--readall", action="store_true",
+            help="Print the values of all general purpose outputs.")
+        gpo_parser.add_argument("--readbit", type=int,choices=range(0,32),
+            help="Read an individual output bit and print its value")
+        gpo_parser.add_argument("--setbit", type=int,choices=range(0,32),
+            help="Set an individual output bit to 1")
+        gpo_parser.add_argument("--clearbit", type=int,choices=range(0,32),
+            help="Clear an individual output bit to 0")
 
         args = parser.parse_args()
 
@@ -82,6 +94,7 @@ class ProbeProgram(object):
         """
         return self.probe.printRegisters()
 
+
     def cmdGPI(self):
         """
         Interracts with the general purpose inputs based on the command
@@ -102,27 +115,58 @@ class ProbeProgram(object):
 
         else:
             # print a single general purpose input value.
-            bank = int(self.args.input / 8)
-            biti = self.args.input % 8
-            bval = None
-
-            if(bank == 0):
-                bval = self.probe.do_RDGPI0()
-            elif(bank == 1):
-                bval = self.probe.do_RDGPI1()
-            elif(bank == 2):
-                bval = self.probe.do_RDGPI2()
-            elif(bank == 3):
-                bval = self.probe.do_RDGPI3()
-            
-            hexval = bval.hex()
-            intval = int(hexval,base=16)
-            binval = bin(intval)[2:]
-            bit    = binval[7-biti]
-            
+            bit =  self.probe.getGPIBit(args.readbit)
             print("GPI[%d] = %s" % (self.args.input, bit))
             return 0
 
+
+    def cmdGPO(self):
+        """
+        Interract with the general purpose outputs.
+        """
+        if(self.args.readall):
+            # print all of the general purpose outputs
+            gpo  = (self.probe.do_RDGPO0(),
+                    self.probe.do_RDGPO1(),
+                    self.probe.do_RDGPO2(),
+                    self.probe.do_RDGPO3())
+            sys.stdout.write("GPO: ")
+            for b in gpo:
+                sys.stdout.write("%s " %b.hex())
+            print("")
+            return 0
+
+        if(self.args.readbit != None):
+            print("Reading GPO[%d]" % self.args.readbit)
+            bit = self.probe.getGPOBit(self.args.readbit)
+            print("GPO[%d] = %s" % (self.args.readbit, bit))
+            return 0
+
+        if(self.args.setbit != None):
+            bank = int(self.args.setbit / 8)
+            bit  = int(self.args.setbit % 8)
+            byte = self.probe.getGPOByte(bank)
+            bitv = self.probe.getBit(bit, byte)
+            
+            if(bitv == 0):
+                tosend = byte | (1 << (7-bit))
+                self.probe.setGPOByte(bank, tosend)
+
+            return 0
+
+        if(self.args.clearbit != None):
+            bank = int(self.args.clearbit / 8)
+            bit  = int(self.args.clearbit % 8)
+            byte = self.probe.getGPOByte(bank)
+            bitv = self.probe.getBit(bit, byte)
+            
+            if(bitv == 1):
+                tosend = byte & ~(1 << (7-bit))
+                self.probe.setGPOByte(bank, tosend)
+
+            return 0
+
+            return 0
 
     def main(self):
         """

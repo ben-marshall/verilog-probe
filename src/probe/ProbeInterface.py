@@ -54,6 +54,79 @@ class ProbeInterface(object):
         print("\tCTRL  : %s"          % ctrl  )
 
         return 0
+
+    def getGPIBit(self, bit):
+        """
+        Return the value of a single bit from the GPIs
+        """
+        bank = int(bit / 8)
+        biti = int(bit % 8)
+        byte = self.getGPIByte(bank)
+        bit  = self.getBit(biti,byte)
+        return bit
+    
+    def getGPOBit(self, bit):
+        """
+        Return the value of a single bit from the GPOs
+        """
+        bank = int(bit / 8)
+        biti = int(bit % 8)
+        byte = self.getGPOByte(bank)
+        bit  = self.getBit(biti,byte)
+        return bit
+    
+    def getGPOByte(self, idx):
+        """
+        Return the gpO byte addressed by idx.
+        """
+        if(idx == 0):
+            return self.do_RDGPO0()
+        elif(idx == 1):
+            return self.do_RDGPO1()
+        elif(idx == 2):
+            return self.do_RDGPO2()
+        elif(idx == 3):
+            return self.do_RDGPO3()
+
+    def setGPOByte(self, idx, val):
+        """
+        Return the gpO byte addressed by idx.
+        """
+        if(idx == 0):
+            return self.do_WRGPO0(val)
+        elif(idx == 1):
+            return self.do_WRGPO1(val)
+        elif(idx == 2):
+            return self.do_WRGPO2(val)
+        elif(idx == 3):
+            return self.do_WRGPO3(val)
+
+    def getGPIByte(self, idx):
+        """
+        Return the gpi byte addressed by idx.
+        """
+        if(idx == 0):
+            return self.do_RDGPI0()
+        elif(idx == 1):
+            return self.do_RDGPI1()
+        elif(idx == 2):
+            return self.do_RDGPI2()
+        elif(idx == 3):
+            return self.do_RDGPI3()
+
+    def getBit(self, biti, bval):
+        """
+        Return a single bit of a byte
+        """
+
+        hexval = bval.hex()
+        intval = int(hexval,base=16)
+        binval = bin(intval)[2:]
+        while(len(binval) < 8):
+            binval = "0"+binval
+        bit    = binval[7-biti]
+
+        return int(bit)
     
     # -----------------------------------------------------------------------
     # It is expected that functions below this point are overriden. They are
