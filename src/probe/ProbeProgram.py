@@ -59,6 +59,16 @@ class ProbeProgram(object):
         gpo_parser.add_argument("--clearbit", type=int,choices=range(0,32),
             help="Clear an individual output bit to 0")
 
+        axi_parser = subparsers.add_parser(pc.CMD_AXI)
+        axi_parser.set_defaults(func = self.cmdAXI)
+        axi_parser.description = "Read and write data via the AXI master bus interface of the probe."
+        axi_parser.add_argument("--set-address", type=str)
+        axi_parser.add_argument("--get-address", action="store_true")
+        axi_parser.add_argument("--auto-inc", type=bool)
+        axi_parser.add_argument("--get-status", action="store_true")
+        axi_parser.add_argument("--read", action="store_true")
+        axi_parser.add_argument("--write", type=str)
+
         args = parser.parse_args()
 
         self.portname = args.port
@@ -74,6 +84,11 @@ class ProbeProgram(object):
         self.probe = ProbeIfSerial()
         # Parse the command line arguments
         self.__parse_args__()
+
+    def cmdAXI(self):
+        """
+        Interprets commands related to the axi bus.
+        """
 
 
     def cmdTestOpen(self):

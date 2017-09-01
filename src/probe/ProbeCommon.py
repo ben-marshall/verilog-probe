@@ -38,7 +38,7 @@ CMD_PRINT_REGISTERS = "print-registers"
 CMD_TRY_CONNECT     = "test"
 CMD_GPI             = "gpi"
 CMD_GPO             = "gpo"
-
+CMD_AXI             = "axi"
 
 def color_stdout(col=30, light=1):
     """
