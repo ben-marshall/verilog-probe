@@ -55,6 +55,31 @@ class ProbeInterface(object):
 
         return 0
 
+    def getAXIAddress(self):
+        """
+        Return the 32-bit AXI address
+        """
+        axi_a= bytes([self.do_RDAXA0(),
+                      self.do_RDAXA1(),
+                      self.do_RDAXA2(),
+                      self.do_RDAXA3()])
+        print(axi_a)
+        address = int.from_bytes(axi_a, byteorder="little")
+        print("%h" %address)
+        print(address)
+        return address
+
+    def setAXIAddress(self, value):
+        """
+        Set the address of the AXI bus.
+        """
+        b = bytes(value)
+        self.do_WRAXA0(b[0])
+        self.do_WRAXA0(b[1])
+        self.do_WRAXA0(b[2])
+        self.do_WRAXA0(b[3])
+
+
     def getGPIBit(self, bit):
         """
         Return the value of a single bit from the GPIs

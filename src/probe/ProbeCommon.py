@@ -40,6 +40,11 @@ CMD_GPI             = "gpi"
 CMD_GPO             = "gpo"
 CMD_AXI             = "axi"
 
+# AXI control / status register field indexes.
+AXCS_AE             = 1
+AXCS_WV             = 3
+AXCS_RV             = 2
+
 def color_stdout(col=30, light=1):
     """
     Set the colour of text printed to stdout.
