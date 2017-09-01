@@ -43,12 +43,12 @@ class ProbeInterface(object):
         
         ctrl = (self.do_AXRDCS(),)
 
-        print("Probe Registers:")
-        print("\tGPI   : %d %d %d %d" % gpi   )
-        print("\tGPO   : %d %d %d %d" % gpo   )
-        print("\tAXI A : %d %d %d %d" % axi_a )
-        print("\tAXI D : %d"          % axi_d )
-        print("\tCTRL  : %d"          % ctrl  )
+        print("\nProbe Registers:")
+        print("\tGPI   : %s %s %s %s" % gpi   )
+        print("\tGPO   : %s %s %s %s" % gpo   )
+        print("\tAXI A : %s %s %s %s" % axi_a )
+        print("\tAXI D : %s"          % axi_d )
+        print("\tCTRL  : %s"          % ctrl  )
     
     # -----------------------------------------------------------------------
     # It is expected that functions below this point are overriden. They are

@@ -42,7 +42,10 @@ class ProbeIfSerial(ProbeInterface):
         assert(len(val) == 1)
         assert(type(val) == bytes)
         v = str(val, encoding="ascii")
-        print(">> %s"%v)
+        pc.color_stdout(col = 32)
+        sys.stdout.write("%s"%v)
+        sys.stdout.flush()
+        pc.nocolor_stdout()
         self.port.write(val)
 
 
@@ -52,8 +55,11 @@ class ProbeIfSerial(ProbeInterface):
         """
         data = self.port.read(size=1)
         v = str(data,encoding="ascii")
-        print(">> %s"%v)
-        return 
+        pc.color_stdout(col = 36)
+        sys.stdout.write("%s"%v)
+        sys.stdout.flush()
+        pc.nocolor_stdout()
+        return data
 
     def do_RDGPI0(self):
         """
