@@ -26,6 +26,7 @@ class ProbeIfSerial(ProbeInterface):
         self.port.port      = portname
         self.port.baudrate  = baud
         self.port.timeout   = timeout
+        self.port.bytesize  = serial.EIGHTBITS
         self.port.open()
 
     def connected(self):

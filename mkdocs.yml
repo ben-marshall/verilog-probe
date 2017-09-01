@@ -20,5 +20,4 @@ pages:
 - Integration: 
     - Overview: integration.md
     - FSM: rtl-fsm.md
-   
-
+- Probe: probe-program.md

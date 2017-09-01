@@ -38,6 +38,15 @@ class ProbeProgram(object):
         print_regs_parser.set_defaults(func = self.cmdPrintRegisters)
         print_regs_parser.description = "Print probe register values"
 
+        gpi_parser = subparsers.add_parser(pc.CMD_GPI)
+        gpi_parser.set_defaults(func = self.cmdGPI)
+        gpi_parser.description = "Allows for reading of the general purpose inputs"
+        gpi_single = gpi_parser.add_mutually_exclusive_group(required=True)
+        gpi_single.add_argument("--input", type=int,choices=range(0,31),
+            help="Read an individual input and print its value")
+        gpi_single.add_argument("--all", action="store_true",
+            help="Print the values of all general purpose inputs.")
+
         args = parser.parse_args()
 
         self.portname = args.port
@@ -72,6 +81,47 @@ class ProbeProgram(object):
         Print the values of the registers on the probe side.
         """
         return self.probe.printRegisters()
+
+    def cmdGPI(self):
+        """
+        Interracts with the general purpose inputs based on the command
+        line arguments to the program.
+        """
+
+        if(self.args.all):
+            # print all of the general purpose inputs
+            gpi  = (self.probe.do_RDGPI0(),
+                    self.probe.do_RDGPI1(),
+                    self.probe.do_RDGPI2(),
+                    self.probe.do_RDGPI3())
+            sys.stdout.write("GPI: ")
+            for b in gpi:
+                sys.stdout.write("%s " %b.hex())
+            print("")
+            return 0
+
+        else:
+            # print a single general purpose input value.
+            bank = int(self.args.input / 8)
+            biti = self.args.input % 8
+            bval = None
+
+            if(bank == 0):
+                bval = self.probe.do_RDGPI0()
+            elif(bank == 1):
+                bval = self.probe.do_RDGPI1()
+            elif(bank == 2):
+                bval = self.probe.do_RDGPI2()
+            elif(bank == 3):
+                bval = self.probe.do_RDGPI3()
+            
+            hexval = bval.hex()
+            intval = int(hexval,base=16)
+            binval = bin(intval)[2:]
+            bit    = binval[7-biti]
+            
+            print("GPI[%d] = %s" % (self.args.input, bit))
+            return 0
 
 
     def main(self):
