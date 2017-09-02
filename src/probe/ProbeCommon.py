@@ -45,14 +45,20 @@ AXCS_AE             = 1
 AXCS_WV             = 3
 AXCS_RV             = 2
 
-def color_stdout(col=30, light=1):
+cols={"RED"   : "\033[1;31m",  
+"BLUE"  : "\033[1;34m",
+"CYAN"  : "\033[1;36m",
+"GREEN" : "\033[0;32m",
+"RESET" : "\033[0;0m"}
+
+def color_stdout(col="GREEN"):
     """
     Set the colour of text printed to stdout.
     """
-    #sys.stdout.write("\[\033[%d;%dm\]" % (col, light))
+    sys.stdout.write(cols[col])
 
 def nocolor_stdout():
     """
     Set the colour of text printed to stdout.
     """
-    #sys.stdout.write("\[\033[0m\]")
+    color_stdout(col="RESET")

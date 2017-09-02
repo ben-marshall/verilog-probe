@@ -6,6 +6,7 @@ Software to communicate with a simple UART Probe Module.
 
 import os
 import sys
+import random
 import argparse
 
 from   bitstring import BitArray
@@ -29,6 +30,7 @@ class ProbeProgram(object):
             help="The name of the TTY/COM port to connect to the probe over.")
         parser.add_argument("--baud","-b", type=int, default=9600,
             help="Baud rate of the serial port.")
+        parser.add_argument("--verbose","-v", action="store_true")
         
         subparsers = parser.add_subparsers()
 
@@ -72,7 +74,8 @@ class ProbeProgram(object):
         axi_parser.add_argument("--write", type=str)
 
         args = parser.parse_args()
-
+        
+        self.probe.verbose = args.verbose
         self.portname = args.port
         self.baudrate = args.baud
         self.args = args
@@ -160,10 +163,36 @@ class ProbeProgram(object):
         """
         if(self.probe.connected()):
             print("Probe successfully connected on port '%s'" % self.portname)
-            return 0
         else:
             print("Probe not connected")
             return 1
+
+        # Read the general purpose outputs
+        print("General Purpose Outputs:")
+        for i in range(0,4):
+            v = self.probe.getGPOByte(i)
+            print("%d - %s" % (i,v))
+
+        # Write a random number to the AXI Address registers.
+        tw = int("bfc00200", base=16)
+        print("Writing to AXI address register.")
+        print("> %s" % hex(tw))
+        print("> %s" % bin(tw))
+
+        self.probe.setAXIAddress(tw)
+        print(" ")
+
+        # Get the AXI address back anc check it matches.
+        rb = self.probe.getAXIAddress()
+        print("Read back value: %s" % hex(rb))
+        print("> %s" % hex(rb))
+        print("> %s" % bin(rb))
+
+        if(rb != tw):
+            print("[ERROR] Read back data is not the same as what we wrote.")
+            return 1
+        else:
+            return 0
 
 
     def cmdPrintRegisters(self):

@@ -75,9 +75,9 @@ class ProbeInterface(object):
         b2 = bits[-24:-16].bytes 
         b3 = bits[-32:-24].bytes 
         self.do_WRAXA0(b0)
-        self.do_WRAXA0(b1)
-        self.do_WRAXA0(b2)
-        self.do_WRAXA0(b3)
+        self.do_WRAXA1(b1)
+        self.do_WRAXA2(b2)
+        self.do_WRAXA3(b3)
 
 
     def getGPIBit(self, bit):

@@ -20,7 +20,7 @@ class ProbeIfSerial(ProbeInterface):
         self.port       = serial.Serial()
         self.verbose    = verbose
     
-    def open(self, portname, baud = 9600, timeout=1):
+    def open(self, portname, baud = 9600, timeout=1000):
         """
         Open the serial interface with the supplied name.
         """
@@ -28,6 +28,7 @@ class ProbeIfSerial(ProbeInterface):
         self.port.baudrate  = baud
         self.port.timeout   = timeout
         self.port.bytesize  = serial.EIGHTBITS
+        self.port.xonxoff   = False
         self.port.open()
 
     def connected(self):
@@ -43,11 +44,11 @@ class ProbeIfSerial(ProbeInterface):
         """
         assert(len(val) == 1)
         assert(type(val) == bytes)
-        v = val
-        pc.color_stdout(col = 32)
+        v = int.from_bytes(val,byteorder="little")
         if(self.verbose):
-            print(">> %s"%v)
-        pc.nocolor_stdout()
+            pc.color_stdout("GREEN")
+            print(">> %s\t - %s\t - %d"% (hex(v),bin(v),v))
+            pc.color_stdout("RESET")
         self.port.write(val)
 
 
@@ -56,11 +57,11 @@ class ProbeIfSerial(ProbeInterface):
         Read one byte from the probe.
         """
         data = self.port.read(size=1)
-        v = data
-        pc.color_stdout(col = 36)
+        v = int.from_bytes(data, byteorder="little")
         if(self.verbose):
-            print("<< %s"%v)
-        pc.nocolor_stdout()
+            pc.color_stdout("RED")
+            print("<< %s\t - %s\t - %d"% (hex(v),bin(v),v))
+            pc.color_stdout("RESET")
         return data
 
     def do_RDGPI0(self):
