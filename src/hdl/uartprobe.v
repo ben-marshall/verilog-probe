@@ -100,30 +100,30 @@ reg [5:0] n_fsm;    // Next FSM state
 //
 // Expected byte values recieved on the RX lines which indicate particular
 // commands.
-localparam [7:0] CMD_GPI_RD0    = 8'd2;
-localparam [7:0] CMD_GPI_RD1    = 8'd3;
-localparam [7:0] CMD_GPI_RD2    = 8'd4;
-localparam [7:0] CMD_GPI_RD3    = 8'd5;
-localparam [7:0] CMD_GPO_RD0    = 8'd6;
-localparam [7:0] CMD_GPO_RD1    = 8'd7;
-localparam [7:0] CMD_GPO_RD2    = 8'd8;
-localparam [7:0] CMD_GPO_RD3    = 8'd9;
-localparam [7:0] CMD_GPO_WR0    = 8'd10;
-localparam [7:0] CMD_GPO_WR1    = 8'd11;
-localparam [7:0] CMD_GPO_WR2    = 8'd12;
-localparam [7:0] CMD_GPO_WR3    = 8'd13;
-localparam [7:0] CMD_AXI_RD0    = 8'd14;
-localparam [7:0] CMD_AXI_RD1    = 8'd15;
-localparam [7:0] CMD_AXI_RD2    = 8'd16;
-localparam [7:0] CMD_AXI_RD3    = 8'd17;
-localparam [7:0] CMD_AXI_WR0    = 8'd18;
-localparam [7:0] CMD_AXI_WR1    = 8'd19;
-localparam [7:0] CMD_AXI_WR2    = 8'd20;
-localparam [7:0] CMD_AXI_WR3    = 8'd21;
-localparam [7:0] CMD_AXI_RD     = 8'd22;
-localparam [7:0] CMD_AXI_WR     = 8'd23;
-localparam [7:0] CMD_AXI_RDC    = 8'd24;
-localparam [7:0] CMD_AXI_WRC    = 8'd25;
+localparam [7:0] CMD_GPI_RD0    = 8'h02;
+localparam [7:0] CMD_GPI_RD1    = 8'h03;
+localparam [7:0] CMD_GPI_RD2    = 8'h04;
+localparam [7:0] CMD_GPI_RD3    = 8'h05;
+localparam [7:0] CMD_GPO_RD0    = 8'h06;
+localparam [7:0] CMD_GPO_RD1    = 8'h07;
+localparam [7:0] CMD_GPO_RD2    = 8'h08;
+localparam [7:0] CMD_GPO_RD3    = 8'h09;
+localparam [7:0] CMD_GPO_WR0    = 8'h0A;
+localparam [7:0] CMD_GPO_WR1    = 8'h0B;
+localparam [7:0] CMD_GPO_WR2    = 8'h0C;
+localparam [7:0] CMD_GPO_WR3    = 8'h0D;
+localparam [7:0] CMD_AXI_RD0    = 8'h0E;
+localparam [7:0] CMD_AXI_RD1    = 8'h0F;
+localparam [7:0] CMD_AXI_RD2    = 8'h10;
+localparam [7:0] CMD_AXI_RD3    = 8'h11;
+localparam [7:0] CMD_AXI_WR0    = 8'h12;
+localparam [7:0] CMD_AXI_WR1    = 8'h13;
+localparam [7:0] CMD_AXI_WR2    = 8'h14;
+localparam [7:0] CMD_AXI_WR3    = 8'h15;
+localparam [7:0] CMD_AXI_RD     = 8'h16;
+localparam [7:0] CMD_AXI_WR     = 8'h17;
+localparam [7:0] CMD_AXI_RDC    = 8'h18;
+localparam [7:0] CMD_AXI_WRC    = 8'h19;
 
 //
 // FSM State encodings
