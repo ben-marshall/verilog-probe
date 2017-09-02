@@ -15,7 +15,7 @@ input             m_aresetn,
 
 input             rx_valid,
 input      [ 7:0] rx_data,
-output reg        rx_ready,
+output            rx_ready,
              
 output            tx_valid,
 output     [ 7:0] tx_data,
@@ -60,6 +60,10 @@ output            m_axi_wvalid
 `define AXI_CTRL_WV 2:2
 `define AXI_CTRL_AE 1:1
 `define AXI_CTRL_RD 0:0
+
+// Register to store the rx_ready bit
+reg           rx_ready_r;
+assign        rx_ready = rx_ready_r && rx_valid;
 
 // "go" signals to trigger a read or write transaction on the AXI bus.
 reg           axi_rd_go;
@@ -222,7 +226,7 @@ end
 
 // Signal we have read the recieved RX data and that we are ready for the
 // next one. Everything is caught and dealt with in one cycle.
-always @(posedge clk) rx_ready <= rx_valid;
+always @(posedge clk) rx_ready_r <= rx_valid;
 
 // 
 // ---------------------- UART TX Channel -------------------------------------
