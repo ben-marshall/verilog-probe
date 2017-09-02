@@ -39,6 +39,7 @@ CMD_TRY_CONNECT     = "test"
 CMD_GPI             = "gpi"
 CMD_GPO             = "gpo"
 CMD_AXI             = "axi"
+CMD_DEMO            = "demo"
 
 # AXI control / status register field indexes.
 AXCS_AE             = 1
@@ -46,10 +47,10 @@ AXCS_WV             = 3
 AXCS_RV             = 2
 
 cols={"RED"   : "\033[1;31m",  
-"BLUE"  : "\033[1;34m",
-"CYAN"  : "\033[1;36m",
-"GREEN" : "\033[0;32m",
-"RESET" : "\033[0;0m"}
+      "BLUE"  : "\033[1;34m",
+      "CYAN"  : "\033[1;36m",
+      "GREEN" : "\033[0;32m",
+      "RESET" : "\033[0;0m"}
 
 def color_stdout(col="GREEN"):
     """

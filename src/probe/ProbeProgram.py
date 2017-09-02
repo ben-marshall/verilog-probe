@@ -38,6 +38,10 @@ class ProbeProgram(object):
         test_parser.set_defaults(func = self.cmdTestOpen)
         test_parser.description = "Test a connection on the specified port"
 
+        demo_parser = subparsers.add_parser(pc.CMD_DEMO)
+        demo_parser.set_defaults(func = self.cmdDemo)
+        demo_parser.description = "Run a demo script using the AXI master"
+
         print_regs_parser = subparsers.add_parser(pc.CMD_PRINT_REGISTERS)
         print_regs_parser.set_defaults(func = self.cmdPrintRegisters)
         print_regs_parser.description = "Print probe register values"
@@ -169,6 +173,29 @@ class ProbeProgram(object):
             # Perform a write to the current address.
             bits = BitArray(hex = self.args.write)
             self.probe.do_WRAXD(bits.bytes)
+
+    def cmdDemo(self):
+        """
+        Runs a very simple demo program.
+        """
+        base_address = int("40000000",base=16)
+        print("Setting Base Address: %s" % hex(base_address))
+        self.probe.setAXIAddress(base_address)
+
+        print("Setting address auto increment")
+        csr     = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+        csr[-2] = 1
+        self.probe.do_AXWRCS(csr)
+        
+        print("Doing read.")
+        csr[-1] = 1
+        self.probe.do_AXWRCS(csr)
+
+        csr     = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+        print("Get read response: %s" % csr[-7:-6])
+
+        return 0
+
 
 
     def cmdTestOpen(self):
