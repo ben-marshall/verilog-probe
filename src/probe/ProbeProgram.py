@@ -170,11 +170,17 @@ class ProbeProgram(object):
         # Read the general purpose outputs
         print("General Purpose Outputs:")
         for i in range(0,4):
+            tw = BitArray(hex=hex(random.randint(0,255)))[-8:].bytes
+            print("Write %s to GPO bank %d" %(tw,i))
+            self.probe.setGPOByte(i,tw)
             v = self.probe.getGPOByte(i)
-            print("%d - %s" % (i,v))
+            print("Read back %s from GPO bank %d" % (v,i))
+            if(v != tw):
+                print("[ERROR] Written value does not match read value")
+                return 1
 
         # Write a random number to the AXI Address registers.
-        tw = int("bfc00200", base=16)
+        tw = random.randint(0,2**32-1)
         print("Writing to AXI address register.")
         print("> %s" % hex(tw))
         print("> %s" % bin(tw))
@@ -191,8 +197,9 @@ class ProbeProgram(object):
         if(rb != tw):
             print("[ERROR] Read back data is not the same as what we wrote.")
             return 1
-        else:
-            return 0
+        
+        print("[TEST SUCCESSFUL]")
+        return 0
 
 
     def cmdPrintRegisters(self):

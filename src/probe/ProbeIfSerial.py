@@ -117,7 +117,7 @@ class ProbeIfSerial(ProbeInterface):
         """
         Perform the command '' and return the result.
         """
-        self.__send__(bytes(pc.PROBE_CMD_RDGPO2))
+        self.__send__(bytes(pc.PROBE_CMD_RDGPO3))
         return self.__recv__()
 
     def do_WRGPO0(self, value):
