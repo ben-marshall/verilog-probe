@@ -538,8 +538,6 @@ initial begin : main_test_sequence
     read_axi_addr(2);
     read_axi_addr(3);
 
-    $finish();
-
     //
     // General Purpose Input test
     //
@@ -619,6 +617,8 @@ initial begin : main_test_sequence
     end
     
     #(CLOCK_PERIOD*4);
+
+    $display("[PASS]");
     
     $finish;
 

@@ -68,7 +68,7 @@ class ProbeProgram(object):
         axi_parser.description = "Read and write data via the AXI master bus interface of the probe."
         axi_parser.add_argument("--set-address", type=str)
         axi_parser.add_argument("--get-address", action="store_true")
-        axi_parser.add_argument("--auto-inc", type=bool, choices=[True,False])
+        axi_parser.add_argument("--auto-inc", type=int, choices=[0,1])
         axi_parser.add_argument("--get-status", action="store_true")
         axi_parser.add_argument("--read", action="store_true")
         axi_parser.add_argument("--write", type=str)
@@ -100,17 +100,21 @@ class ProbeProgram(object):
         if(self.args.auto_inc != None):
 
             csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
-            ae  = csr[-1]
+            ae  = csr[-2]
+            print(csr)
 
-            if(ae and not self.args.auto_inc):
+            if(ae and self.args.auto_inc == 0):
                 # We need to clear the autoinc bit
-                csr[-1] = 0
+                print("Clear address auto-increment")
+                csr[-2] = 0
                 self.probe.do_AXWRCS(csr.bytes)
 
-            elif(not ae and self.args.auto_inc):
+            elif(not ae and self.args.auto_inc == 1):
                 # We need to set the autoinc bit
-                csr[-1] = 1
+                print("Set address auto-increment")
+                csr[-2] = 1
                 self.probe.do_AXWRCS(csr.bytes)
+            print(csr)
 
         
         # Get the axi master address value
@@ -127,9 +131,9 @@ class ProbeProgram(object):
         if(self.args.get_status):
             csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
             
-            ae = csr[-pc.AXCS_AE]
-            rv = csr[-pc.AXCS_RV]
-            wv = csr[-pc.AXCS_WV]
+            ae = csr[-2]
+            rv = csr[-1-pc.AXCS_RV]
+            wv = csr[-1-pc.AXCS_WV]
             
             rr = csr[-7:-6]
             wr = csr[-5:-4]
@@ -141,7 +145,7 @@ class ProbeProgram(object):
             print(" 2    | Read response valid     | %d" % rv)
             print(" 3    | Write response valid    | %d" % wv)
             print("4:5   | Read response           | %d" % rr.uint)
-            print("5:7   | Write Response          | %d" % wr.uint)
+            print("6:7   | Write Response          | %d" % wr.uint)
 
         if(self.args.read):
             # Read the current address value?
@@ -246,10 +250,10 @@ class ProbeProgram(object):
         """
         if(self.args.readall):
             # print all of the general purpose outputs
-            gpo  = (self.probe.do_RDGPO0(),
-                    self.probe.do_RDGPO1(),
+            gpo  = (self.probe.do_RDGPO3(),
                     self.probe.do_RDGPO2(),
-                    self.probe.do_RDGPO3())
+                    self.probe.do_RDGPO1(),
+                    self.probe.do_RDGPO0())
             sys.stdout.write("GPO: ")
             for b in gpo:
                 sys.stdout.write("%s " %b.hex())
@@ -265,28 +269,27 @@ class ProbeProgram(object):
         if(self.args.setbit != None):
             bank = int(self.args.setbit / 8)
             bit  = int(self.args.setbit % 8)
-            byte = self.probe.getGPOByte(bank)
-            bitv = self.probe.getBit(bit, byte)
+            byte = BitArray(bytes=self.probe.getGPOByte(bank),length=8)
+            bitv = byte[7-bit]
             
             if(bitv == 0):
-                tosend = byte | (1 << (7-bit))
-                self.probe.setGPOByte(bank, tosend)
+                byte[7-bit] = 1
+                self.probe.setGPOByte(bank, byte.bytes)
 
             return 0
 
         if(self.args.clearbit != None):
             bank = int(self.args.clearbit / 8)
             bit  = int(self.args.clearbit % 8)
-            byte = self.probe.getGPOByte(bank)
-            bitv = self.probe.getBit(bit, byte)
+            byte = BitArray(bytes=self.probe.getGPOByte(bank),length=8)
+            bitv = byte[7-bit]
             
             if(bitv == 1):
-                tosend = byte & ~(1 << (7-bit))
-                self.probe.setGPOByte(bank, tosend)
+                byte[7-bit] = 0
+                self.probe.setGPOByte(bank, byte.bytes)
 
             return 0
 
-            return 0
 
     def main(self):
         """

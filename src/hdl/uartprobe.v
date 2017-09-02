@@ -72,7 +72,16 @@ reg           axi_wa_go;
 
 reg  [31:0]   axi_addr;
 reg  [ 7:0]   axi_data;
-reg  [ 7:0]   axi_ctrl;
+
+reg           axi_ctrl_ae;
+reg           axi_ctrl_rv;
+reg           axi_ctrl_wv;
+reg  [ 1:0]   axi_ctrl_rr;
+reg  [ 1:0]   axi_ctrl_wr;
+
+wire [ 7:0]   axi_ctrl = {axi_ctrl_rr, axi_ctrl_wr,
+                          axi_ctrl_rv, axi_ctrl_wv,
+                          axi_ctrl_ae, 1'b0};
 
 //
 // AXI Signal Handling
@@ -320,28 +329,28 @@ end
 always @(posedge clk, negedge m_aresetn) begin : p_axi_ctrl
     if(!m_aresetn) begin
 
-        axi_ctrl[`AXI_CTRL_RV] <= 1'b1;
-        axi_ctrl[`AXI_CTRL_WV] <= 1'b1;
-        axi_ctrl[`AXI_CTRL_AE] <= 1'b1;
+        axi_ctrl_ae <= 1'b1;
+        axi_ctrl_rv <= 1'b1;
+        axi_ctrl_wv <= 1'b1;
 
     end else begin
         
         if(fsm == FSM_AXI_WRC && rx_valid) begin
-            axi_ctrl[`AXI_CTRL_AE] <= rx_data[`AXI_CTRL_AE]; 
+            axi_ctrl_ae <= rx_data[`AXI_CTRL_AE]; 
         end
 
         if(m_axi_rvalid) begin
-            axi_ctrl[`AXI_CTRL_RR] <= m_axi_rresp;
-            axi_ctrl[`AXI_CTRL_RV] <= 1'b1;
+            axi_ctrl_rr <= m_axi_rresp;
+            axi_ctrl_rv <= 1'b1;
         end else if (fsm == FSM_AXI_RD && tx_ready) begin
-            axi_ctrl[`AXI_CTRL_RV] <= 1'b0;
+            axi_ctrl_rv <= 1'b0;
         end
         
         if(m_axi_bvalid) begin
-            axi_ctrl[`AXI_CTRL_WR] <= m_axi_bresp;
-            axi_ctrl[`AXI_CTRL_WV] <= 1'b1;
+            axi_ctrl_wr <= m_axi_bresp;
+            axi_ctrl_wv <= 1'b1;
         end else if (fsm == FSM_AXI_RD && tx_ready) begin
-            axi_ctrl[`AXI_CTRL_WV] <= 1'b0;
+            axi_ctrl_wv <= 1'b0;
         end
     end
 end
