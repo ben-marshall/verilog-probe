@@ -166,6 +166,12 @@ class ProbeProgram(object):
         else:
             print("Probe not connected")
             return 1
+        
+        # Read the general purpose inputs
+        print("General Purpose Inputs:")
+        for i in range(0,4):
+            v = self.probe.getGPIByte(i)
+            print("GPI[%d] bank %s" % (i,v))
 
         # Read the general purpose outputs
         print("General Purpose Outputs:")
