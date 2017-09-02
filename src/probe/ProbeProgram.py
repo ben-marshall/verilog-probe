@@ -60,18 +60,28 @@ class ProbeProgram(object):
             help="Read an individual output bit and print its value")
         gpo_parser.add_argument("--setbit", type=int,choices=range(0,32),
             help="Set an individual output bit to 1")
+        gpo_parser.add_argument("--setall", action="store_true",
+            help="Set all general purpose outputs.")
         gpo_parser.add_argument("--clearbit", type=int,choices=range(0,32),
             help="Clear an individual output bit to 0")
+        gpo_parser.add_argument("--clearall", action="store_true",
+            help="Clear all general purpose outputs.")
 
         axi_parser = subparsers.add_parser(pc.CMD_AXI)
         axi_parser.set_defaults(func = self.cmdAXI)
         axi_parser.description = "Read and write data via the AXI master bus interface of the probe."
-        axi_parser.add_argument("--set-address", type=str)
-        axi_parser.add_argument("--get-address", action="store_true")
-        axi_parser.add_argument("--auto-inc", type=int, choices=[0,1])
-        axi_parser.add_argument("--get-status", action="store_true")
-        axi_parser.add_argument("--read", action="store_true")
-        axi_parser.add_argument("--write", type=str)
+        axi_parser.add_argument("--set-address", type=str,
+            help="Set the AXI address to any 32-bit value.")
+        axi_parser.add_argument("--get-address", action="store_true",
+            help="Read the current AXI address.")
+        axi_parser.add_argument("--auto-inc", type=int, choices=[0,1],
+            help="Turn address auto-incremnting on/off")
+        axi_parser.add_argument("--get-status", action="store_true",
+            help="Return the current status of the AXI bus master.")
+        axi_parser.add_argument("--read", action="store_true",
+            help="Perform an AXI read")
+        axi_parser.add_argument("--write", type=str,
+            help="Perform an AXI write")
 
         args = parser.parse_args()
         
@@ -259,6 +269,18 @@ class ProbeProgram(object):
                 sys.stdout.write("%s " %b.hex())
             print("")
             return 0
+
+        if(self.args.clearall):
+            # Clear all bytes to zero.
+            print("Clearing all GPOs")
+            for i in range(0,4):
+                self.port.setGPOByte(i,bytes(0))
+        
+        if(self.args.setall):
+            # Set all bytes to one.
+            print("Setting all GPOs")
+            for i in range(0,4):
+                self.port.setGPOByte(i,bytes(255))
 
         if(self.args.readbit != None):
             print("Reading GPO[%d]" % self.args.readbit)
