@@ -302,7 +302,7 @@ class ProbeInterface(object):
         """
         return None
 
-    def do_AXWRCS(self, AE=True):
+    def do_AXWRCS(self, value):
         """
         Perform the command '' and return the result.
         """

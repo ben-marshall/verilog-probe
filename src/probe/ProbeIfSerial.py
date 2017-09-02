@@ -252,7 +252,7 @@ class ProbeIfSerial(ProbeInterface):
         self.__send__(bytes(pc.PROBE_CMD_AXRDCS))
         return self.__recv__()
 
-    def do_AXWRCS(self, AE=True):
+    def do_AXWRCS(self, value):
         """
         Perform the command '' and return the result.
         """

@@ -327,7 +327,7 @@ always @(posedge clk, negedge m_aresetn) begin : p_axi_ctrl
     end else begin
         
         if(fsm == FSM_AXI_WRC && rx_valid) begin
-            axi_ctrl[`AXI_CTRL_AE] <= rx_data; 
+            axi_ctrl[`AXI_CTRL_AE] <= rx_data[`AXI_CTRL_AE]; 
         end
 
         if(m_axi_rvalid) begin

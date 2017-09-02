@@ -127,9 +127,9 @@ class ProbeProgram(object):
         if(self.args.get_status):
             csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
             
-            ae = csr[pc.AXCS_AE]
-            rv = csr[pc.AXCS_RV]
-            wv = csr[pc.AXCS_WV]
+            ae = csr[-pc.AXCS_AE]
+            rv = csr[-pc.AXCS_RV]
+            wv = csr[-pc.AXCS_WV]
             
             rr = csr[-7:-6]
             wr = csr[-5:-4]
