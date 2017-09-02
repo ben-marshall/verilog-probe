@@ -8,9 +8,11 @@ import os
 import sys
 import argparse
 
-import  ProbeCommon as pc
-from    ProbeInterface import ProbeInterface
-from    ProbeIfSerial  import ProbeIfSerial
+from   bitstring import BitArray
+
+import ProbeCommon as pc
+from   ProbeInterface import ProbeInterface
+from   ProbeIfSerial  import ProbeIfSerial
 
 class ProbeProgram(object):
     """
@@ -94,40 +96,40 @@ class ProbeProgram(object):
         # Setup auto incrementing.
         if(self.args.auto_inc != None):
 
-            csr = self.probe.do_AXRDCS()
-            ae  = self.probe.getBit(1,csr)
+            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+            ae  = csr[-1]
 
             if(ae and not self.args.auto_inc):
                 # We need to clear the autoinc bit
-                csr = csr & ~(bytes(2))
-                self.probe.do_AXWRCS(csr)
+                csr[-1] = 0
+                self.probe.do_AXWRCS(csr.bytes)
 
             elif(not ae and self.args.auto_inc):
                 # We need to set the autoinc bit
-                csr = csr | bytes(2)
-                self.probe.do_AXWRCS(csr)
+                csr[-1] = 1
+                self.probe.do_AXWRCS(csr.bytes)
 
         
         # Get the axi master address value
         if(self.args.get_address):
-            print("AXI Address: %h",self.probe.getAXIAddress())
+            print("AXI Address: %s"%hex(self.probe.getAXIAddress()))
 
         # Set the axi master address value
         if(self.args.set_address != None):
-            addr = int(self.args.get_address,base="16")
+            addr = int(self.args.set_address,base=16)
             self.probe.setAXIAddress(addr)
 
 
         # Display the current status of the AXI master bus.
         if(self.args.get_status):
-            csr = self.probe.do_AXRDCS()
+            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
             
-            ae = self.probe.getBit(pc.AXCS_AE, csr)
-            rv = self.probe.getBit(pc.AXCS_RV, csr)
-            wv = self.probe.getBit(pc.AXCS_WV, csr)
+            ae = csr[pc.AXCS_AE]
+            rv = csr[pc.AXCS_RV]
+            wv = csr[pc.AXCS_WV]
             
-            rr = (csr) & bytes(3<<4)
-            wr = (csr) & bytes(3<<6)
+            rr = csr[-7:-6]
+            wr = csr[-5:-4]
 
             print("AXI Status")
             print("Field | Value                   | Value ")
@@ -135,20 +137,21 @@ class ProbeProgram(object):
             print(" 1    | Address auto increment  | %d" % ae)
             print(" 2    | Read response valid     | %d" % rv)
             print(" 3    | Write response valid    | %d" % wv)
-            print("4:5   | Read response           | %d" % rr)
-            print("5:7   | Write Response          | %d" % wr)
+            print("4:5   | Read response           | %d" % rr.uint)
+            print("5:7   | Write Response          | %d" % wr.uint)
 
         if(self.args.read):
             # Read the current address value?
-            csr = self.probe.do_AXRDCS()
-            csr = csr | bytes(1)
-            self.probe.do_AXWRCS(csr)
+            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+            csr[1] = 1
+            self.probe.do_AXWRCS(csr.bytes)
             data = self.probe.do_RDAXD()
             print("Read data: %h" % data)
 
         if(self.args.write != None):
             # Perform a write to the current address.
-            self.probe.do_WRAXD(bytes(int(self.args.write,base=16)))
+            bits = BitArray(hex = self.args.write)
+            self.probe.do_WRAXD(bits.bytes)
 
 
     def cmdTestOpen(self):

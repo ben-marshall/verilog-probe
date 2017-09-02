@@ -13,11 +13,12 @@ class ProbeIfSerial(ProbeInterface):
     Class which implements the ProbeInterface class.
     """
 
-    def __init__(self):
+    def __init__(self, verbose=False):
         """
         Create the interface.
         """
         self.port       = serial.Serial()
+        self.verbose    = verbose
     
     def open(self, portname, baud = 9600, timeout=1):
         """
@@ -42,10 +43,10 @@ class ProbeIfSerial(ProbeInterface):
         """
         assert(len(val) == 1)
         assert(type(val) == bytes)
-        v = str(val, encoding="ascii")
+        v = val
         pc.color_stdout(col = 32)
-        sys.stdout.write("%s"%v)
-        sys.stdout.flush()
+        if(self.verbose):
+            print(">> %s"%v)
         pc.nocolor_stdout()
         self.port.write(val)
 
@@ -55,10 +56,10 @@ class ProbeIfSerial(ProbeInterface):
         Read one byte from the probe.
         """
         data = self.port.read(size=1)
-        v = str(data,encoding="ascii")
+        v = data
         pc.color_stdout(col = 36)
-        sys.stdout.write("%s"%v)
-        sys.stdout.flush()
+        if(self.verbose):
+            print("<< %s"%v)
         pc.nocolor_stdout()
         return data
 

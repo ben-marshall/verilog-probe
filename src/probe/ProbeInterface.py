@@ -3,6 +3,8 @@
 import os
 import sys
 
+from   bitstring import BitArray
+
 import ProbeCommon as pc
 
 class ProbeInterface(object):
@@ -59,25 +61,23 @@ class ProbeInterface(object):
         """
         Return the 32-bit AXI address
         """
-        axi_a= bytes([self.do_RDAXA0(),
-                      self.do_RDAXA1(),
-                      self.do_RDAXA2(),
-                      self.do_RDAXA3()])
-        print(axi_a)
+        axi_a = self.do_RDAXA0() + self.do_RDAXA1() + self.do_RDAXA2() + self.do_RDAXA3()
         address = int.from_bytes(axi_a, byteorder="little")
-        print("%h" %address)
-        print(address)
         return address
 
     def setAXIAddress(self, value):
         """
         Set the address of the AXI bus.
         """
-        b = bytes(value)
-        self.do_WRAXA0(b[0])
-        self.do_WRAXA0(b[1])
-        self.do_WRAXA0(b[2])
-        self.do_WRAXA0(b[3])
+        bits = BitArray(hex=hex(value))
+        b0 = bits[-8:].bytes 
+        b1 = bits[-16:-8].bytes 
+        b2 = bits[-24:-16].bytes 
+        b3 = bits[-32:-24].bytes 
+        self.do_WRAXA0(b0)
+        self.do_WRAXA0(b1)
+        self.do_WRAXA0(b2)
+        self.do_WRAXA0(b3)
 
 
     def getGPIBit(self, bit):
