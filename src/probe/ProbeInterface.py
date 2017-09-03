@@ -44,16 +44,18 @@ class ProbeInterface(object):
                 self.do_RDAXA2(),
                 self.do_RDAXA3())
 
-        axi_d= (self.do_RDAXD(),)
+        axi_d= (self.getAXIReadData(),)
         
-        ctrl = (self.do_AXRDCS(),)
+        rctrl = (self.do_AXIRDRC(),)
+        wctrl = (self.do_AXIRDWC(),)
 
         print("\nProbe Registers:")
         print("\tGPI   : %s %s %s %s" % gpi   )
         print("\tGPO   : %s %s %s %s" % gpo   )
         print("\tAXI A : %s %s %s %s" % axi_a )
         print("\tAXI D : %s"          % axi_d )
-        print("\tCTRL  : %s"          % ctrl  )
+        print("\tRD Ctl: %s"          % rctrl )
+        print("\tWR Ctl: %s"          % wctrl )
 
         return 0
 
@@ -85,7 +87,7 @@ class ProbeInterface(object):
         Return the most recently read value from the AXI bus.
         """
         data = self.do_AXIRB0() + self.do_AXIRB1() + self.do_AXIRB2() + self.do_AXIRB3()
-        data = int.from_bytes(axi_a, byteorder="little")
+        data = int.from_bytes(data, byteorder="little")
         return data
 
 

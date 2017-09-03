@@ -113,7 +113,7 @@ class ProbeProgram(object):
         # Setup auto incrementing.
         if(self.args.auto_inc != None):
 
-            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+            csr = BitArray(bytes=self.probe.do_AXIRDRC(), length=8)
             ae  = csr[-2]
             print(csr)
 
@@ -121,13 +121,13 @@ class ProbeProgram(object):
                 # We need to clear the autoinc bit
                 print("Clear address auto-increment")
                 csr[-2] = 0
-                self.probe.do_AXWRCS(csr.bytes)
+                self.probe.do_AXIWRRC(csr.bytes)
 
             elif(not ae and self.args.auto_inc == 1):
                 # We need to set the autoinc bit
                 print("Set address auto-increment")
                 csr[-2] = 1
-                self.probe.do_AXWRCS(csr.bytes)
+                self.probe.do_AXIWRRC(csr.bytes)
             print(csr)
 
         
@@ -143,36 +143,35 @@ class ProbeProgram(object):
 
         # Display the current status of the AXI master bus.
         if(self.args.get_status):
-            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
-            
-            ae = csr[-2]
-            rv = csr[-1-pc.AXCS_RV]
-            wv = csr[-1-pc.AXCS_WV]
-            
-            rr = csr[-7:-6]
-            wr = csr[-5:-4]
+            rs = BitArray(bytes=self.probe.do_AXIRDRC())
+            ws = BitArray(bytes=self.probe.do_AXIRDRC())
 
-            print("AXI Status")
-            print("Field | Value                   | Value ")
-            print("------|-------------------------|---------")
-            print(" 1    | Address auto increment  | %d" % ae)
-            print(" 2    | Read response valid     | %d" % rv)
-            print(" 3    | Write response valid    | %d" % wv)
-            print("4:5   | Read response           | %d" % rr.uint)
-            print("6:7   | Write Response          | %d" % wr.uint)
+            print("Read Status:")
+            print(" - Response Valid: %s" % rs[ 4 ])
+            print(" - Response Value: %d" % rs[0:1].uint)
+
+            print("Write Status:")
+            print(" - Response Valid: %s" % ws[ 4 ])
+            print(" - Response Value: %d" % ws[0:1].uint)
+
+            print ("Address auto incremnet: %s" % rs[-2])
 
         if(self.args.read):
             # Read the current address value?
-            csr = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
+            csr = BitArray(bytes=self.probe.do_AXIRDRC(), length=8)
             csr[1] = 1
-            self.probe.do_AXWRCS(csr.bytes)
-            data = self.probe.do_RDAXD()
+            self.probe.do_AXIWRRC(csr.bytes)
+            data = self.probe.getAXIReadData()
             print("Read data: %h" % data)
 
         if(self.args.write != None):
             # Perform a write to the current address.
             bits = BitArray(hex = self.args.write)
-            self.probe.do_WRAXD(bits.bytes)
+            print("Setting write data: %h" % self.args.write)
+            self.probe.setAXIWriteData(bits)
+            print("Performing write.")
+            self.probe.do_AXIWRWC(bytes(1))
+
 
     def cmdDemo(self):
         """

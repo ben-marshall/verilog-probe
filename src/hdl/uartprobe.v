@@ -102,7 +102,7 @@ assign        m_axi_bready = m_axi_bvalid;
 
 assign        m_axi_rready = m_axi_rvalid;
 
-assign        m_axi_wstrb  = 4'b1;
+assign        m_axi_wstrb  = 4'b1111;
 assign        m_axi_wvalid = axi_wr_go;
 
 assign        m_axi_araddr = axi_addr;
