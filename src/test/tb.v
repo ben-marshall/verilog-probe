@@ -32,10 +32,18 @@ localparam [7:0] CMD_AXI_WR0    = 8'h12;
 localparam [7:0] CMD_AXI_WR1    = 8'h13;
 localparam [7:0] CMD_AXI_WR2    = 8'h14;
 localparam [7:0] CMD_AXI_WR3    = 8'h15;
-localparam [7:0] CMD_AXI_RD     = 8'h16;
-localparam [7:0] CMD_AXI_WR     = 8'h17;
-localparam [7:0] CMD_AXI_RDC    = 8'h18;
-localparam [7:0] CMD_AXI_WRC    = 8'h19;
+localparam [7:0] CMD_AXI_RB0    = 8'h16;
+localparam [7:0] CMD_AXI_RB1    = 8'h17;
+localparam [7:0] CMD_AXI_RB2    = 8'h18;
+localparam [7:0] CMD_AXI_RB3    = 8'h19;
+localparam [7:0] CMD_AXI_WB0    = 8'h1A;
+localparam [7:0] CMD_AXI_WB1    = 8'h1B;
+localparam [7:0] CMD_AXI_WB2    = 8'h1C;
+localparam [7:0] CMD_AXI_WB3    = 8'h1D;
+localparam [7:0] CMD_AXI_RDRC   = 8'h1E;
+localparam [7:0] CMD_AXI_WRRC   = 8'h1F;
+localparam [7:0] CMD_AXI_RDWC   = 8'h20;
+localparam [7:0] CMD_AXI_WRWC   = 8'h21;
 
 //
 // DUT I/O signals
@@ -119,6 +127,7 @@ end
 always @(posedge clk) begin
     clock_counter = clock_counter + 1;
     if(clock_counter > 10000) begin
+        $display("[FAIL] - Timeout");
         $finish;
     end
 end
@@ -466,55 +475,97 @@ task write_axi_addr;
 endtask
 
 //
-//  task: read_axi_ctrl
+//  task: read_axi_rdata
 //
-//      Read the AXI control register.
+//      Read a byte of the AXI read data.
 //  
-task read_axi_ctrl;
-    send_byte(CMD_AXI_RDC);
+task read_axi_rdata;
+    input [1:0] byte;
+    input [7:0] val;
+    begin
+       case(byte)
+            0   : begin
+                send_byte(CMD_AXI_RB0);
+                expect_byte(model_axi_rdata[ 7: 0]);
+            end
+            1   : begin
+                send_byte(CMD_AXI_RB1);
+                expect_byte(model_axi_rdata[15: 8]);
+            end
+            2   : begin
+                send_byte(CMD_AXI_RB2);
+                expect_byte(model_axi_rdata[23:16]);
+            end
+            3   : begin
+                send_byte(CMD_AXI_RB3);
+                expect_byte(model_axi_rdata[31:24]);
+            end
+        endcase
+    end
 endtask
 
 //
-//  task: write_axi_ctrl 
+//  task: write_axi_wdata
 //
-//      Write a value to the AXI control register.
+//      Write a byte of the AXI write data
 //  
-task write_axi_ctrl;
-    input [7:0] value;
+task write_axi_wdata;
+    input [1:0] byte;
+    input [7:0] val;
     begin
-        if(value[1]) begin
-            model_axi_addr = model_axi_addr + 1;
-        end
-        send_byte(CMD_AXI_WRC);
-        send_byte(value);
+        case(byte)
+            0   : begin
+                send_byte(CMD_AXI_WB0);
+                model_axi_wdata[7:0] = val;
+            end
+            1   : begin
+                send_byte(CMD_AXI_WB1);
+                model_axi_wdata[15:8] = val;
+            end
+            2   : begin 
+                send_byte(CMD_AXI_WB2);
+                model_axi_wdata[23:16] = val;
+            end
+            3   : begin
+                send_byte(CMD_AXI_WB3);
+                model_axi_wdata[31:24] = val;
+            end
+        endcase
+        send_byte(val);
     end
 endtask
 
 
 //
-//  task: read_axi_data
+//  task: write_axi_rctrl
 //
-//      Read the last returned value in the AXI data register.
+//      Write to the axi read control register.
 //  
-task read_axi_data;
-    send_byte(CMD_AXI_RD);
-endtask
-
-
-//
-//  task: write_axi_data
-//
-//      Perform an AXI interface write to the current address in the AXI
-//      address register of the supplied value.
-//  
-task write_axi_data;
-    input [7:0] value;
+task write_axi_rctrl;
+    input [7:0] val;
     begin
-        model_axi_wdata = value;
-        send_byte(CMD_AXI_WR);
-        send_byte(value);
+        send_byte(CMD_AXI_WRRC);
+        send_byte(val);
     end
 endtask
+
+
+//
+//  task: write_axi_wctrl
+//
+//      Write to the axi write control register.
+//  
+task write_axi_wctrl;
+    input [7:0] val;
+    begin
+        send_byte(CMD_AXI_WRWC);
+        send_byte(val);
+    end
+endtask
+
+
+
+
 
 // ---------------- Test Sequences -------------------------------------
 
@@ -526,17 +577,8 @@ initial begin : main_test_sequence
 
     #(CLOCK_PERIOD*40);
 
-    write_axi_ctrl(8'b0);
-
-    write_axi_addr(0,8'h00);
-    write_axi_addr(1,8'h02);
-    write_axi_addr(2,8'hc0);
-    write_axi_addr(3,8'hbf);
-    
-    read_axi_addr(0);
-    read_axi_addr(1);
-    read_axi_addr(2);
-    read_axi_addr(3);
+    write_axi_rctrl(8'b0);
+    write_axi_wctrl(8'b0);
 
     //
     // General Purpose Input test
@@ -590,32 +632,40 @@ initial begin : main_test_sequence
 
 
     //
-    // AXI Write Test
+    // AXI Write Data Test
     //
-    repeat (40) begin : random_write_axi_data
+    repeat (40) begin : random_write_data
+        reg [1:0] tgt;
         reg [7:0] value;
 
+        tgt     = $random;
         value   = $random;
 
-        $display("AXI> Write %h to memory", value);
+        $display("AXI> Write %h to byte %d of m_axi_wdata", value, tgt);
 
-        write_axi_data(value);
-
+        write_axi_wdata(tgt,value);
+        // Don't do a write until the register has no X's in it!
+        if(model_axi_wdata == model_axi_wdata) begin
+            write_axi_wctrl(8'b1);
+        end
     end
-    
-    //
-    // AXI Read Test
-    //
-    repeat (40) begin : random_read_axi_data
-        
-        $display("AXI> Read from memory");
 
-        write_axi_ctrl(8'b0000_0001); // Do a read.
-        read_axi_data();              // Return the read data.
-        expect_byte(model_axi_rdata);
 
+    //
+    // AXI Read Data Test
+    //
+    repeat (40) begin : random_read_data
+        reg [1:0] tgt;
+        reg [7:0] value;
+
+        tgt     = $random;
+        value   = $random;
+
+        $display("AXI> Read byte %d of m_axi_rdata", value, tgt);
+        write_axi_rctrl(8'b1);
+        read_axi_rdata(tgt,value);
     end
-    
+
     #(CLOCK_PERIOD*4);
 
     $display("[PASS]");
