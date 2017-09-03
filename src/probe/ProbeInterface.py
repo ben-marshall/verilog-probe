@@ -80,6 +80,30 @@ class ProbeInterface(object):
         self.do_WRAXA3(b3)
 
 
+    def getAXIReadData(self):
+        """
+        Return the most recently read value from the AXI bus.
+        """
+        data = self.do_AXIRB0() + self.do_AXIRB1() + self.do_AXIRB2() + self.do_AXIRB3()
+        data = int.from_bytes(axi_a, byteorder="little")
+        return data
+
+
+    def setAXIWriteData(self, value):
+        """
+        Set the data to be written on the AXI master bus.
+        """
+        bits = BitArray(hex=hex(value))
+        b0 = bits[-8:].bytes 
+        b1 = bits[-16:-8].bytes 
+        b2 = bits[-24:-16].bytes 
+        b3 = bits[-32:-24].bytes 
+        self.do_AXIWB0(b0)
+        self.do_AXIWB1(b1)
+        self.do_AXIWB2(b2)
+        self.do_AXIWB3(b3)
+
+
     def getGPIBit(self, bit):
         """
         Return the value of a single bit from the GPIs
@@ -284,27 +308,76 @@ class ProbeInterface(object):
         """
         return None
 
-    def do_RDAXD (self):
+    def do_AXIRB0 (self):
         """
         Perform the command '' and return the result.
         """
         return None
 
-    def do_WRAXD (self, value):
+    def do_AXIRB1 (self):
         """
         Perform the command '' and return the result.
         """
         return None
 
-    def do_AXRDCS(self):
+    def do_AXIRB2 (self):
         """
         Perform the command '' and return the result.
         """
         return None
 
-    def do_AXWRCS(self, value):
+    def do_AXIRB3 (self):
         """
         Perform the command '' and return the result.
         """
         return None
+
+    def do_AXIWB0 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIWB1 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIWB2 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIWB3 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIRDRC(self):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIWRRC(self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIRDWC(self):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
+    def do_AXIWRWC(self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        return None
+
 

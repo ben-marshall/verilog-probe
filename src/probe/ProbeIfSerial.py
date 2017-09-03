@@ -228,38 +228,107 @@ class ProbeIfSerial(ProbeInterface):
         self.__send__(value)
         return None
 
-    def do_RDAXD (self):
+    def do_AXIRB0 (self):
         """
         Perform the command '' and return the result.
         """
-        self.__send__(bytes(pc.PROBE_CMD_RDAXD))
+        self.__send__(bytes(pc.PROBE_CMD_AXIRB0))
         return self.__recv__()
 
-    def do_WRAXD (self, value):
+    def do_AXIRB1 (self):
+        """
+        Perform the command '' and return the result.
+        """
+        self.__send__(bytes(pc.PROBE_CMD_AXIRB1))
+        return self.__recv__()
+
+    def do_AXIRB2 (self):
+        """
+        Perform the command '' and return the result.
+        """
+        self.__send__(bytes(pc.PROBE_CMD_AXIRB2))
+        return self.__recv__()
+
+    def do_AXIRB3 (self):
+        """
+        Perform the command '' and return the result.
+        """
+        self.__send__(bytes(pc.PROBE_CMD_AXIRB3))
+        return self.__recv__()
+
+    def do_AXIWB0 (self, value):
         """
         Perform the command '' and return the result.
         """
         assert(len(value) == 1)
         assert(type(value) == bytes)
-        self.__send__(bytes(pc.PROBE_CMD_WRAXD))
+        self.__send__(bytes(pc.PROBE_CMD_AXIWB0))
         self.__send__(value)
         return None
 
-    def do_AXRDCS(self):
-        """
-        Perform the command '' and return the result.
-        """
-        self.__send__(bytes(pc.PROBE_CMD_AXRDCS))
-        return self.__recv__()
-
-    def do_AXWRCS(self, value):
+    def do_AXIWB1 (self, value):
         """
         Perform the command '' and return the result.
         """
         assert(len(value) == 1)
         assert(type(value) == bytes)
-        self.__send__(bytes(pc.PROBE_CMD_AXWRCS))
+        self.__send__(bytes(pc.PROBE_CMD_AXIWB1))
         self.__send__(value)
         return None
+
+    def do_AXIWB2 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        assert(len(value) == 1)
+        assert(type(value) == bytes)
+        self.__send__(bytes(pc.PROBE_CMD_AXIWB2))
+        self.__send__(value)
+        return None
+
+    def do_AXIWB3 (self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        assert(len(value) == 1)
+        assert(type(value) == bytes)
+        self.__send__(bytes(pc.PROBE_CMD_AXIWB3))
+        self.__send__(value)
+        return None
+
+    def do_AXIRDRC(self):
+        """
+        Perform the command '' and return the result.
+        """
+        self.__send__(bytes(pc.PROBE_CMD_AXIRDRC))
+        return self.__recv__()
+
+    def do_AXIWRRC(self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        assert(len(value) == 1)
+        assert(type(value) == bytes)
+        self.__send__(bytes(pc.PROBE_CMD_AXIWRRC))
+        self.__send__(value)
+        return None
+
+    def do_AXIRDWC(self):
+        """
+        Perform the command '' and return the result.
+        """
+        self.__send__(bytes(pc.PROBE_CMD_AXIRDWC))
+        return self.__recv__()
+
+    def do_AXIWRWC(self, value):
+        """
+        Perform the command '' and return the result.
+        """
+        assert(len(value) == 1)
+        assert(type(value) == bytes)
+        self.__send__(bytes(pc.PROBE_CMD_AXIWRWC))
+        self.__send__(value)
+        return None
+
 
 
