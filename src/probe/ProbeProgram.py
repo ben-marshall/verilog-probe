@@ -182,19 +182,31 @@ class ProbeProgram(object):
         self.probe.setAXIAddress(base_address)
 
         print("Setting address auto increment")
-        csr     = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
-        csr[-2] = 1
-        self.probe.do_AXWRCS(csr)
+        self.probe.setAutoIncrement(True)
         
-        print("Doing read.")
-        csr[-1] = 1
-        self.probe.do_AXWRCS(csr)
+        csr = self.probe.do_AXIRDRC()
+        print("Pre-Read Response Value: %s" % csr)
 
-        csr     = BitArray(bytes=self.probe.do_AXRDCS(), length=8)
-        print("Get read response: %s" % csr[-7:-6])
+        for i in range(0,5):
+            print("Performing read")
+            self.probe.doRead()
+
+            csr = self.probe.do_AXIRDRC()
+            print("Post-Read Response Value: %s" % csr)
+
+            print("Read Data:")
+            data = self.probe.getAXIReadData()
+            print("dec: %d" % data)
+            print("hex: %s" % hex(data))
+            print("bin: %s" % bin(data))
+
+            print("New AXI Address value:")
+            data = self.probe.getAXIAddress()
+            print("dec: %d" % data)
+            print("hex: %s" % hex(data))
+            print("bin: %s" % bin(data))
 
         return 0
-
 
 
     def cmdTestOpen(self):

@@ -420,13 +420,13 @@ end
 
 
 wire [31:0] n_axi_addr = 
-    (m_axi_rready || m_axi_bready) && axi_ctrl_ae ? axi_addr+1   :
-    !rx_ready          ? axi_addr                                           :
-    fsm == FSM_AXI_WR0 ? {axi_addr[31:8], rx_data}                          :
-    fsm == FSM_AXI_WR1 ? {axi_addr[31:16], rx_data, axi_addr[7:0]}          :
-    fsm == FSM_AXI_WR2 ? {axi_addr[31:24], rx_data, axi_addr[15:0]}         :
-    fsm == FSM_AXI_WR3 ? {rx_data, axi_addr[23:0]}                          :
-                          axi_addr                                          ;
+    (m_axi_rready || m_axi_bready) && axi_ctrl_ae ? (axi_addr+32'h4)        :
+    !rx_ready                 ? axi_addr                                    :
+    fsm == FSM_AXI_WR0        ? {axi_addr[31:8], rx_data}                   :
+    fsm == FSM_AXI_WR1        ? {axi_addr[31:16], rx_data, axi_addr[7:0]}   :
+    fsm == FSM_AXI_WR2        ? {axi_addr[31:24], rx_data, axi_addr[15:0]}  :
+    fsm == FSM_AXI_WR3        ? {rx_data, axi_addr[23:0]}                   :
+                                 axi_addr                                   ;
 
 //
 // This process is responsible for updating the AXI address register.
