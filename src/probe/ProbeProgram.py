@@ -177,34 +177,43 @@ class ProbeProgram(object):
         """
         Runs a very simple demo program.
         """
+        auto_inc     = False
+        base_address = int("40000008",base=16)
+        print("Setting Base Address: %s" % hex(base_address))
+        self.probe.setAXIAddress(base_address)
+
+        print("Setting address auto increment: %s" % str(auto_inc))
+        self.probe.setAutoIncrement(auto_inc)
+        
+        csr = self.probe.do_AXIRDRC()
+        print("Pre-Read Response Value: %s" % csr)
+        
+        # Read the switches
+
+        self.probe.doRead()
+
+        csr = self.probe.do_AXIRDRC()
+        print("Read Response: %s" % csr)
+
+        sys.stdout.write("Read Data: ")
+        rdata = self.probe.getAXIReadData()
+        print("dec: %d, hex: %s, bin: %s" % (rdata,hex(rdata),bin(rdata)))
+
+        sys.stdout.write("New AXI Address value: ")
+        data = self.probe.getAXIAddress()
+        print("dec: %d, hex: %s, bin: %s" % (data,hex(data),bin(data)))
+
+        #  Write the LEDS
         base_address = int("40000000",base=16)
         print("Setting Base Address: %s" % hex(base_address))
         self.probe.setAXIAddress(base_address)
 
-        print("Setting address auto increment")
-        self.probe.setAutoIncrement(True)
-        
-        csr = self.probe.do_AXIRDRC()
-        print("Pre-Read Response Value: %s" % csr)
-
-        for i in range(0,5):
-            print("Performing read")
-            self.probe.doRead()
-
-            csr = self.probe.do_AXIRDRC()
-            print("Post-Read Response Value: %s" % csr)
-
-            print("Read Data:")
-            data = self.probe.getAXIReadData()
-            print("dec: %d" % data)
-            print("hex: %s" % hex(data))
-            print("bin: %s" % bin(data))
-
-            print("New AXI Address value:")
-            data = self.probe.getAXIAddress()
-            print("dec: %d" % data)
-            print("hex: %s" % hex(data))
-            print("bin: %s" % bin(data))
+        # Set the write data
+        print("Setting Write data: %s" % hex(rdata))
+        self.probe.setAXIWriteData(rdata)
+        self.probe.doWrite()
+        csr = self.probe.do_AXIRDWC()
+        print("Write Response: %s" % csr)
 
         return 0
 

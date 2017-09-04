@@ -118,7 +118,11 @@ class ProbeInterface(object):
         """
         Set the data to be written on the AXI master bus.
         """
-        bits = BitArray(hex=hex(value))
+        hexval = hex(value)[2:]
+        while(len(hexval)<8):
+            hexval = "0"+hexval
+        hexval = "0x"+hexval
+        bits = BitArray(hex=hexval)
         b0 = bits[-8:].bytes 
         b1 = bits[-16:-8].bytes 
         b2 = bits[-24:-16].bytes 
