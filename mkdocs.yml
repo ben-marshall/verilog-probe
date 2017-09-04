@@ -13,6 +13,7 @@ markdown_extensions:
 - toc
 
 pages:
+- VerilogProbe: README.md
 - Probe: probe-program.md
 - Specification: 
     - Overview: spec-overview.md
