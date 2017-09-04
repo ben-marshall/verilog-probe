@@ -1,10 +1,10 @@
-site_name: uart-probe
+site_name: verilog-probe
 
 site_author: Ben Marshall
 
 theme: readthedocs
 
-repo_name: https://github.com/ben-marshall/uart-probe
+repo_name: https://github.com/ben-marshall/verilog-probe
 
 markdown_extensions:
 - smarty
@@ -13,10 +13,9 @@ markdown_extensions:
 - toc
 
 pages:
+- Probe: probe-program.md
 - Specification: 
     - Overview: spec-overview.md
     - Details: spec-details.md
 - Commands: command-list.md
-- Integration: 
-    - Overview: integration.md
-- Probe: probe-program.md
+- Integration: integration.md
