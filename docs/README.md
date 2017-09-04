@@ -19,3 +19,5 @@ Stat                       | Value
  Latches                   | 0
  LUTs                      | 187
  Timing slack @ 100MHz     | 3.77ns
+
+![Cell Map](cells.png)
