@@ -19,5 +19,4 @@ pages:
 - Commands: command-list.md
 - Integration: 
     - Overview: integration.md
-    - FSM: rtl-fsm.md
 - Probe: probe-program.md

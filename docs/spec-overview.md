@@ -10,6 +10,6 @@ Overview of the features of the module.
 - 32 byte addressable general purpose outputs.
 - AXI4 Master Interface
     - 32-bit byte addressable memory space.
-    - 8-bit  data bus width.
+    - 32-bit data bus width.
 - The module is optimised for area and simplicity of integration.
 
