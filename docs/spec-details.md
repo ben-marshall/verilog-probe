@@ -168,17 +168,22 @@ and `WRAXAn` operations.
 
 Bits | Name |   Purpose                                    | R/W | Reset Value
 -----|------|----------------------------------------------|-----|-------------
+31:24| d3   | Byte for read / write data                   | R/W | Undefined
+23:16| d2   | Byte for read / write data                   | R/W | Undefined
+15:8 | d1   | Byte for read / write data                   | R/W | Undefined
 7:0  | d0   | Byte for read / write data                   | R/W | Undefined
 
 
 Fields of the AXI4 data register are written and read using the `RDAXD`
-and `WRAXD` operations.
+and `AXIWBn` and `AXIRBn operations, where `n` refers to the byte being
+read/written.
 
-When a read transaction completes successfully, the returned data is placed
-into this register.
+When an AXI read transaction completes successfully, the returned data is
+placed into this register.
 
-When this register is written to, the written value is not stored in it, but
-forwarded straight onto the AXI4 bus.
+When this register is written to, the written value is stored in it, but
+an AXI write transaction does not occur. A write is triggered by writing a `1`
+to the `go` bit (`0`) of the write control register.
 
 ### Clock Domains:
 

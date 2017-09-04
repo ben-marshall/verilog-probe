@@ -13,24 +13,23 @@ serial port, but instead of using the Arduino IDE, we use a different program.
 
 ---
 
-## Commands Supported
+## Usage
 
-### test
+### General
 
-Tests that we can actually open a connection on the specified port.
+```
+usage: ProbeProgram.py [-h] [--baud BAUD] [--verbose]
+                       port {test,demo,print-registers,gpi,gpo,axi} ...
 
-### print-registers
+Software to communicate with a simple UART Probe Module.
 
-Prints the values of all registers accessible on the probe.
+positional arguments:
+  port                  The name of the TTY/COM port to connect to the probe
+                        over.
+  {test,demo,print-registers,gpi,gpo,axi}
 
-### gpi
-
-Allows for access to the general purpose inputs.
-
-- Can read all inputs, or an individual input.
-
-### gpo
-
-Allows for access to the general purpose outputs.
-
-- Can read or write all outputs, or an individual output.
+optional arguments:
+  -h, --help            show this help message and exit
+  --baud BAUD, -b BAUD  Baud rate of the serial port.
+  --verbose, -v
+```

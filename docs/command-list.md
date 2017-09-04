@@ -25,7 +25,15 @@
      WRAXA1     | `CMD_AXI_WR1`     | 0x13  
      WRAXA2     | `CMD_AXI_WR2`     | 0x14  
      WRAXA3     | `CMD_AXI_WR3`     | 0x15  
-     RDAXD      | `CMD_AXI_RD `     | 0x16  
-     WRAXD      | `CMD_AXI_WR `     | 0x17  
-     AXRDCS     | `CMD_AXI_RDC`     | 0x18  
-     AXWRCS     | `CMD_AXI_WRC`     | 0x19  
+     AXIRB0     | `CMD_AXI_RB0 `    | 0x16
+     AXIRB1     | `CMD_AXI_RB1 `    | 0x17
+     AXIRB2     | `CMD_AXI_RB2 `    | 0x18
+     AXIRB3     | `CMD_AXI_RB3 `    | 0x19
+     AXIWB0     | `CMD_AXI_WB0 `    | 0x1A
+     AXIWB1     | `CMD_AXI_WB1 `    | 0x1B
+     AXIWB2     | `CMD_AXI_WB2 `    | 0x1C
+     AXIWB3     | `CMD_AXI_WB3 `    | 0x1D
+     AXIRDRC    | `CMD_AXI_RDRC`    | 0x1E
+     AXIWRRC    | `CMD_AXI_WRRC`    | 0x1F
+     AXIRDWC    | `CMD_AXI_RDWC`    | 0x20
+     AXIWRWC    | `CMD_AXI_WRWC`    | 0x21
