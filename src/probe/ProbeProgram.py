@@ -28,7 +28,7 @@ class ProbeProgram(object):
         
         parser.add_argument("port", type=str,
             help="The name of the TTY/COM port to connect to the probe over.")
-        parser.add_argument("--baud","-b", type=int, default=9600,
+        parser.add_argument("--baud","-b", type=int, default=57600,
             help="Baud rate of the serial port.")
         parser.add_argument("--verbose","-v", action="store_true")
         
@@ -41,6 +41,20 @@ class ProbeProgram(object):
         demo_parser = subparsers.add_parser(pc.CMD_DEMO)
         demo_parser.set_defaults(func = self.cmdDemo)
         demo_parser.description = "Run a demo script using the AXI master"
+        
+        file_parser = subparsers.add_parser(pc.CMD_FILE)
+        file_parser.set_defaults(func = self.cmdFile)
+        file_parser.description = "Read and write files into & out of the probe"
+        file_parser.add_argument("file", type=str,
+            help="file to be read or written")
+        file_parser.add_argument("--read", action="store_true",
+            help="Read probe memory into this file")
+        file_parser.add_argument("--write", action="store_true",
+            help="Write this file into this address")
+        file_parser.add_argument("--address", type=str,
+            help="Set the AXI address to this value before reading/writing")
+        file_parser.add_argument("--length", type=int, default=8,
+            help="How many words (4 bytes) to read or write?")
 
         print_regs_parser = subparsers.add_parser(pc.CMD_PRINT_REGISTERS)
         print_regs_parser.set_defaults(func = self.cmdPrintRegisters)
@@ -103,6 +117,35 @@ class ProbeProgram(object):
         self.probe = ProbeIfSerial()
         # Parse the command line arguments
         self.__parse_args__()
+
+
+    def cmdFile(self):
+        """
+        Read and write files into and out of probe memory.
+        """
+        assert(not (self.args.read and self.args.write))
+
+        if(self.args.address != None):
+            print("Setting AXI address: %s" % self.args.address)
+            self.probe.set_address(self.args.address)
+
+        openmode = None
+        if(args.read):
+            openmode = "rb"
+        else:
+            opemode  = "wb"
+
+        with open(args.file,openmode) as fh:
+
+            for i in range(0,self.args.length):
+
+                if(args.read):
+                    self.probe.doRead(autoInc=True)
+                    data = getAXIReadData()
+                else:
+                    self.probe.setAXIWriteData("00000000")
+                    self.probe.doWrite(auto_inc=True)
+
 
 
     def cmdAXI(self):

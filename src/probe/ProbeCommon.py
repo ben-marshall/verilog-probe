@@ -48,6 +48,7 @@ CMD_GPI             = "gpi"
 CMD_GPO             = "gpo"
 CMD_AXI             = "axi"
 CMD_DEMO            = "demo"
+CMD_FILE            = "file"
 
 cols={"RED"   : "\033[1;31m",  
       "BLUE"  : "\033[1;34m",

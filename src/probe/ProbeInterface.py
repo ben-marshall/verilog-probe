@@ -90,19 +90,29 @@ class ProbeInterface(object):
         data = int.from_bytes(data, byteorder="little")
         return data
 
-    def doRead(self):
+    def doRead(self, autoInc = None):
         """
         Perform a single read transaction at the current address
         """
-        csr = BitArray(bytes=self.do_AXIRDRC(), length=8)
+        csr = BitArray(bytes=b"0", length=8)
+        if(autoInc == None):
+            csr = BitArray(bytes=self.do_AXIRDRC(), length=8)
+        else:
+            csr[-2] = autoInc
+
         csr[-1] = 1
         self.do_AXIWRRC(csr.bytes)
 
-    def doWrite(self):
+    def doWrite(self, autoInc = None):
         """
         Perform a single write transaction at the current address
         """
-        csr = BitArray(bytes=self.do_AXIRDWC(), length=8)
+        csr = BitArray(bytes=b"0", length=8)
+        if(autoInc == None):
+            csr = BitArray(bytes=self.do_AXIRDRC(), length=8)
+        else:
+            csr[-2] = autoInc
+
         csr[-1] = 1
         self.do_AXIWRWC(csr.bytes)
 
