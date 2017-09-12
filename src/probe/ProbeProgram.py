@@ -28,7 +28,7 @@ class ProbeProgram(object):
         
         parser.add_argument("port", type=str,
             help="The name of the TTY/COM port to connect to the probe over.")
-        parser.add_argument("--baud","-b", type=int, default=57600,
+        parser.add_argument("--baud","-b", type=int, default=9600,
             help="Baud rate of the serial port.")
         parser.add_argument("--verbose","-v", action="store_true")
         
@@ -257,6 +257,33 @@ class ProbeProgram(object):
         self.probe.doWrite()
         csr = self.probe.do_AXIRDWC()
         print("Write Response: %s" % csr)
+
+        print("Testing memory: Writing")
+        written = []
+        read    = []
+        testlen = 127
+        self.probe.setAXIAddress(int("C0000000",base=16))
+        for i in range(0, testlen):
+            wd = random.randint(0,255)
+            sys.stdout.write("%d "%wd)
+            self.probe.setAXIWriteData(wd)
+            self.probe.doWrite(autoInc=True)
+            written.append(wd)
+        
+        print("\nTesting memory: Reading")
+        self.probe.setAXIAddress(int("C0000000",base=16))
+        for i in range(0, testlen):
+            self.probe.doRead(autoInc=True)
+            rd = self.probe.getAXIReadData()
+            sys.stdout.write("%d " % rd)
+            read.append(rd)
+
+        if(read == written):
+            print("\n[PASS]")
+        else:
+            print("\n[FAIL]")
+
+        print("\nDONE")
 
         return 0
 
